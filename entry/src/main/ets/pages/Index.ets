@@ -3,6 +3,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { KeyType, TouchType } from '@kit.ArkUI';
 import { HealthBar } from '../components/HealthBar';
 import { SkillButton } from '../components/SkillButton';
+import { CharacterManager } from '../game/CharacterManager';
 
 const DOMAIN = 0x0000;
 const TAG = 'Index';
@@ -132,8 +133,19 @@ struct Index {
   }
 
   // 初始化Canvas上下文
-  aboutToAppear() {
+  async aboutToAppear() {
     this.canvasContext = new CanvasRenderingContext2D();
+
+    // 测试加载角色数据
+    const manager = CharacterManager.getInstance();
+    await manager.loadAllCharacters();
+
+    const characters = manager.getAllCharacters();
+    hilog.info(DOMAIN, TAG, 'Loaded %{public}d characters', characters.length);
+
+    characters.forEach(char => {
+      hilog.info(DOMAIN, TAG, '- %{public}s (%{public}s)', char.name, char.faction);
+    });
   }
 
   // 清理资源

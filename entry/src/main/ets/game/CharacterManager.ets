@@ -1,5 +1,6 @@
 import { Character } from '../models/Character';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { resourceManager } from '@kit.LocalizationKit';
 
 const DOMAIN = 0x0000;
 const TAG = 'CharacterManager';
@@ -40,7 +41,50 @@ export class CharacterManager {
   async loadAllCharacters(): Promise<void> {
     hilog.info(DOMAIN, TAG, 'Loading character configurations...');
 
-    // 临时硬编码，后续使用ResourceManager读取
+    try {
+      // 读取所有角色JSON文件
+      const characterFiles = [
+        'chen_pingan.json',
+        'ning_ya.json',
+        'aliang.json',
+        'cao_qing_lang.json',
+        'luo_shi_huang.json',
+        'po_jun.json',
+        'wen_shu.json',
+        'xu_mao.json',
+        'yu_li_zi.json',
+        'zhong_kui.json'
+      ];
+
+      for (const fileName of characterFiles) {
+        try {
+          const fileData = await resourceManager.getRawFileDescriptor(`characters/${fileName}`);
+          const content = await fileData.readText();
+          const charData: CharacterData = JSON.parse(content);
+
+          this.characterConfigs.set(charData.id, charData);
+          hilog.info(DOMAIN, TAG, 'Loaded character: %{public}s', charData.name);
+        } catch (fileError) {
+          hilog.warn(DOMAIN, TAG, 'Failed to load %{public}s: %{public}s', fileName, JSON.stringify(fileError));
+        }
+      }
+
+      hilog.info(DOMAIN, TAG, 'Loaded %{public}d characters total', this.characterConfigs.size);
+
+      // 如果没有加载到任何角色，使用默认配置
+      if (this.characterConfigs.size === 0) {
+        hilog.warn(DOMAIN, TAG, 'No characters loaded, using default configuration');
+        await this.loadDefaultCharacters();
+      }
+    } catch (error) {
+      hilog.error(DOMAIN, TAG, 'Failed to load characters: %{public}s', JSON.stringify(error));
+      // 加载失败时使用默认配置
+      await this.loadDefaultCharacters();
+    }
+  }
+
+  // 加载默认角色（备用方案）
+  private async loadDefaultCharacters(): Promise<void> {
     const characters: CharacterData[] = [
       {
         id: 'chen_pingan',
@@ -66,7 +110,7 @@ export class CharacterManager {
       this.characterConfigs.set(char.id, char);
     });
 
-    hilog.info(DOMAIN, TAG, 'Loaded %{public}d characters', characters.length);
+    hilog.info(DOMAIN, TAG, 'Loaded %{public}d default characters', characters.length);
   }
 
   // 根据ID获取角色配置
