@@ -4,12 +4,20 @@ const DOMAIN = 0x0000;
 const TAG = 'GameEngine';
 
 export class GameEngine {
+  // 常量定义
+  private static readonly LOG_FRAME_INTERVAL = 60; // 每60帧打印一次日志
+
   private isRunning: boolean = false;
   private lastFrameTime: number = 0;
   private canvas: CanvasRenderingContext2D | null = null;
+  private frameCount: number = 0; // 帧计数器
 
   constructor(canvas: CanvasRenderingContext2D) {
+    if (!canvas) {
+      throw new Error('Canvas context cannot be null');
+    }
     this.canvas = canvas;
+    hilog.info(DOMAIN, TAG, 'GameEngine initialized successfully');
   }
 
   // 启动游戏循环
@@ -31,9 +39,10 @@ export class GameEngine {
     const currentTime = Date.now();
     const deltaTime = currentTime - this.lastFrameTime;
     this.lastFrameTime = currentTime;
+    this.frameCount++;
 
     // 每60帧打印一次日志
-    if (currentTime % 1000 < 20) {
+    if (this.frameCount % GameEngine.LOG_FRAME_INTERVAL === 0) {
       hilog.info(DOMAIN, TAG, 'Game loop running, deltaTime: %{public}d', deltaTime);
     }
 
