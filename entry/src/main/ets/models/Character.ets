@@ -22,6 +22,7 @@ export class Character {
   private static readonly GROUND_Y = 500;
   private static readonly ATTACK_DURATION = 300; // 攻击持续时间（毫秒）
   private static readonly ATTACK_COOLDOWN_TIME = 500; // 攻击冷却时间（毫秒）
+  private static readonly DAMAGE_WINDOW_START = 200; // 伤害判定窗口阈值（ms）
 
   id: string;
   name: string;
@@ -141,6 +142,7 @@ export class Character {
   // 攻击
   attack(): void {
     // 检查是否在冷却中
+    // 注意：冷却时间(500ms)包含攻击持续时间(300ms)，实际额外冷却为200ms
     if (this.attackCooldown > 0 || this.attackDuration > 0) {
       return;
     }
@@ -152,10 +154,17 @@ export class Character {
 
   // 受到伤害
   takeDamage(damage: number): void {
-    const actualDamage = Math.max(1, damage - this.stats.defense);
-    this.stats.currentHp = Math.max(0, this.stats.currentHp - actualDamage);
-    this.state = CharacterState.HURT;
-    this.hurtDuration = Character.HURT_DURATION;
+    // 如果已经在受击状态，不重复受伤（提供短暂无敌帧）
+    if (this.state === CharacterState.HURT) {
+      return;
+    }
+
+    const actualDamage = damage - this.stats.defense;
+    if (actualDamage > 0) {
+      this.stats.currentHp = Math.max(0, this.stats.currentHp - actualDamage);
+      this.state = CharacterState.HURT;
+      this.hurtDuration = Character.HURT_DURATION;
+    }
   }
 
   // 检查是否死亡
@@ -168,8 +177,8 @@ export class Character {
     return this.attackDuration > 0;
   }
 
-  // 检查是否在伤害判定窗口（攻击前100ms内）
+  // 检查是否在伤害判定窗口（攻击的前100ms：300ms持续时间 - 200ms阈值）
   canDealDamage(): boolean {
-    return this.attackDuration > 200;
+    return this.attackDuration > Character.DAMAGE_WINDOW_START;
   }
 }
