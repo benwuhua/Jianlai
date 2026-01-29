@@ -100,6 +100,12 @@ export class GameEngine {
         this.player.x += overlap / 2;
         this.enemy.x -= overlap / 2;
       }
+
+      // 碰撞响应后再次检查边界约束，防止角色被推到屏幕外
+      if (this.canvas) {
+        CollisionDetector.clampToScreen(this.player, this.canvas.width, this.canvas.height);
+        CollisionDetector.clampToScreen(this.enemy, this.canvas.width, this.canvas.height);
+      }
     }
 
     // TODO: 在Task 5中添加BattleSystem攻击判定
