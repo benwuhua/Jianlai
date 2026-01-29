@@ -1,5 +1,6 @@
 import { Character } from '../models/Character';
 import { CollisionDetector } from '../utils/CollisionDetector';
+import { AudioManager } from '../utils/AudioManager';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const DOMAIN = 0x0000;
@@ -30,6 +31,7 @@ export class BattleSystem {
     // 造成伤害（避免重复判定：只在攻击开始时造成伤害）
     if (attacker.canDealDamage()) {
       target.takeDamage(attacker.stats.attack);
+      AudioManager.getInstance().playHitSound();
       hilog.info(DOMAIN, TAG, '%{public}s hit %{public}s for %{public}d damage',
         attacker.name, target.name, attacker.stats.attack);
     }

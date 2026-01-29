@@ -1,3 +1,5 @@
+import { AudioManager } from '../utils/AudioManager';
+
 // 角色状态枚举
 export enum CharacterState {
   IDLE = 'idle',
@@ -136,12 +138,13 @@ export class Character {
   jump(): void {
     if (this.y >= Character.GROUND_Y) { // 在地面
       this.velocityY = -15;
+      // 播放跳跃音效
+      AudioManager.getInstance().playJumpSound();
     }
   }
 
   // 攻击
   attack(): void {
-    // 检查是否在冷却中
     // 注意：冷却时间(500ms)包含攻击持续时间(300ms)，实际额外冷却为200ms
     if (this.attackCooldown > 0 || this.attackDuration > 0) {
       return;
@@ -150,6 +153,9 @@ export class Character {
     this.state = CharacterState.ATTACKING;
     this.attackDuration = Character.ATTACK_DURATION;
     this.attackCooldown = Character.ATTACK_COOLDOWN_TIME;
+
+    // 播放攻击音效
+    AudioManager.getInstance().playAttackSound();
   }
 
   // 受到伤害
