@@ -1,0 +1,58 @@
+{
+  "id": "xu_mao",
+  "name": "徐秘",
+  "faction": "scholar",
+  "color": "#1ABC9C",
+  "baseStats": {
+    "maxHp": 950,
+    "currentHp": 950,
+    "attack": 85,
+    "defense": 60,
+    "speed": 6
+  },
+  "modeSwitch": {
+    "hasAlternateMode": false
+  },
+  "skills": [
+    {
+      "id": "secret_knowledge",
+      "name": "秘术",
+      "type": "active",
+      "cooldown": 10000,
+      "kiCost": 15,
+      "damage": 110,
+      "range": 180,
+      "description": "神秘法术攻击"
+    },
+    {
+      "id": "wisdom",
+      "name": "智慧之光",
+      "type": "active",
+      "cooldown": 14000,
+      "kiCost": 20,
+      "damage": 0,
+      "range": 0,
+      "description": "恢复全体友军灵气"
+    },
+    {
+      "id": "prophecy",
+      "name": "预言",
+      "type": "active",
+      "cooldown": 16000,
+      "kiCost": 25,
+      "damage": 0,
+      "range": 200,
+      "description": "预知敌人行动，提升闪避率"
+    }
+  ],
+  "ultimate": {
+    "id": "heaven_secret",
+    "name": "天机",
+    "type": "ultimate",
+    "cooldown": 60000,
+    "kiCost": 100,
+    "damage": 350,
+    "range": 350,
+    "description": "揭示天机，造成伤害并附加多重效果"
+  }
+}

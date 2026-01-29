@@ -1,0 +1,58 @@
+{
+  "id": "yu_li_zi",
+  "name": "郁离子",
+  "faction": "daoist",
+  "color": "#8E44AD",
+  "baseStats": {
+    "maxHp": 850,
+    "currentHp": 850,
+    "attack": 95,
+    "defense": 50,
+    "speed": 5
+  },
+  "modeSwitch": {
+    "hasAlternateMode": false
+  },
+  "skills": [
+    {
+      "id": "thunder",
+      "name": "雷法",
+      "type": "active",
+      "cooldown": 11000,
+      "kiCost": 18,
+      "damage": 150,
+      "range": 200,
+      "description": "召唤雷电攻击敌人"
+    },
+    {
+      "id": "formation_array",
+      "name": "阵法",
+      "type": "active",
+      "cooldown": 14000,
+      "kiCost": 25,
+      "damage": 0,
+      "range": 150,
+      "description": "布置阵法，限制敌人移动"
+    },
+    {
+      "id": "healing",
+      "name": "治疗术",
+      "type": "active",
+      "cooldown": 12000,
+      "kiCost": 20,
+      "damage": 0,
+      "range": 0,
+      "description": "恢复友军生命值"
+    }
+  ],
+  "ultimate": {
+    "id": "heaven_thunder",
+    "name": "天雷阵",
+    "type": "ultimate",
+    "cooldown": 60000,
+    "kiCost": 100,
+    "damage": 400,
+    "range": 300,
+    "description": "大范围雷电阵，持续伤害"
+  }
+}

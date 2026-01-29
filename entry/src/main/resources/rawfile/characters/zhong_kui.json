@@ -1,0 +1,58 @@
+{
+  "id": "zhong_kui",
+  "name": "钟魁",
+  "faction": "daoist",
+  "color": "#16A085",
+  "baseStats": {
+    "maxHp": 1000,
+    "currentHp": 1000,
+    "attack": 100,
+    "defense": 65,
+    "speed": 4
+  },
+  "modeSwitch": {
+    "hasAlternateMode": false
+  },
+  "skills": [
+    {
+      "id": "ghost_seal",
+      "name": "鬼印",
+      "type": "active",
+      "cooldown": 10000,
+      "kiCost": 15,
+      "damage": 130,
+      "range": 180,
+      "description": "鬼道法术攻击"
+    },
+    {
+      "id": "summon_spirit",
+      "name": "召灵",
+      "type": "active",
+      "cooldown": 15000,
+      "kiCost": 30,
+      "damage": 0,
+      "range": 0,
+      "description": "召唤灵体助战"
+    },
+    {
+      "id": "soul_chain",
+      "name": "魂链",
+      "type": "active",
+      "cooldown": 13000,
+      "kiCost": 20,
+      "damage": 110,
+      "range": 200,
+      "description": "连接敌人灵魂，持续伤害"
+    }
+  ],
+  "ultimate": {
+    "id": "nether_world",
+    "name": "幽冥",
+    "type": "ultimate",
+    "cooldown": 60000,
+    "kiCost": 100,
+    "damage": 450,
+    "range": 350,
+    "description": "打开幽冥之门，大范围鬼道攻击"
+  }
+}

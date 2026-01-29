@@ -1,0 +1,58 @@
+{
+  "id": "wen_shu",
+  "name": "文圣",
+  "faction": "scholar",
+  "color": "#2980B9",
+  "baseStats": {
+    "maxHp": 800,
+    "currentHp": 800,
+    "attack": 80,
+    "defense": 45,
+    "speed": 5
+  },
+  "modeSwitch": {
+    "hasAlternateMode": false
+  },
+  "skills": [
+    {
+      "id": "teach",
+      "name": "教化",
+      "type": "active",
+      "cooldown": 12000,
+      "kiCost": 15,
+      "damage": 90,
+      "range": 150,
+      "description": "儒家教化，削弱敌人"
+    },
+    {
+      "id": "benevolence",
+      "name": "仁术",
+      "type": "active",
+      "cooldown": 14000,
+      "kiCost": 25,
+      "damage": 0,
+      "range": 0,
+      "description": "恢复全体友军生命值"
+    },
+    {
+      "id": "moral",
+      "name": "道义",
+      "type": "active",
+      "cooldown": 16000,
+      "kiCost": 30,
+      "damage": 0,
+      "range": 200,
+      "description": "提升全体友军全属性"
+    }
+  ],
+  "ultimate": {
+    "id": "sage_lecture",
+    "name": "圣人讲学",
+    "type": "ultimate",
+    "cooldown": 60000,
+    "kiCost": 100,
+    "damage": 350,
+    "range": 400,
+    "description": "圣人之言，大幅强化友军并削弱敌人"
+  }
+}

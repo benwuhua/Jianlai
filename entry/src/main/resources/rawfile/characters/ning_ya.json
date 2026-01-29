@@ -1,0 +1,58 @@
+{
+  "id": "ning_ya",
+  "name": "宁姚",
+  "faction": "swordsman",
+  "color": "#E74C3C",
+  "baseStats": {
+    "maxHp": 1000,
+    "currentHp": 1000,
+    "attack": 150,
+    "defense": 50,
+    "speed": 6
+  },
+  "modeSwitch": {
+    "hasAlternateMode": false
+  },
+  "skills": [
+    {
+      "id": "flying_sword",
+      "name": "飞剑术",
+      "type": "active",
+      "cooldown": 8000,
+      "kiCost": 15,
+      "damage": 180,
+      "range": 300,
+      "description": "高速飞剑突刺"
+    },
+    {
+      "id": "sword_domain",
+      "name": "剑域压制",
+      "type": "active",
+      "cooldown": 12000,
+      "kiCost": 25,
+      "damage": 200,
+      "range": 150,
+      "description": "范围内敌人减速并受伤"
+    },
+    {
+      "id": "sword_heart",
+      "name": "剑心通明",
+      "type": "active",
+      "cooldown": 15000,
+      "kiCost": 20,
+      "damage": 0,
+      "range": 0,
+      "description": "提升攻击力50%，持续10秒"
+    }
+  ],
+  "ultimate": {
+    "id": "rainbow_sword",
+    "name": "彩云间",
+    "type": "ultimate",
+    "cooldown": 60000,
+    "kiCost": 100,
+    "damage": 500,
+    "range": 400,
+    "description": "多把飞剑同时攻击"
+  }
+}

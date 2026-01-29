@@ -1,0 +1,58 @@
+{
+  "id": "aliang",
+  "name": "阿良",
+  "faction": "wanderer",
+  "color": "#9B59B6",
+  "baseStats": {
+    "maxHp": 1100,
+    "currentHp": 1100,
+    "attack": 130,
+    "defense": 65,
+    "speed": 7
+  },
+  "modeSwitch": {
+    "hasAlternateMode": false
+  },
+  "skills": [
+    {
+      "id": "noodles",
+      "name": "一碗阳春面",
+      "type": "active",
+      "cooldown": 10000,
+      "kiCost": 15,
+      "damage": 140,
+      "range": 100,
+      "description": "快速斩击，附加眩晕"
+    },
+    {
+      "id": "flying_sword_array",
+      "name": "飞剑阵",
+      "type": "active",
+      "cooldown": 12000,
+      "kiCost": 25,
+      "damage": 160,
+      "range": 250,
+      "description": "多把飞剑环绕攻击"
+    },
+    {
+      "id": "sword_intent",
+      "name": "剑意压制",
+      "type": "active",
+      "cooldown": 15000,
+      "kiCost": 30,
+      "damage": 0,
+      "range": 200,
+      "description": "降低范围内敌人攻击力"
+    }
+  ],
+  "ultimate": {
+    "id": "sword_fairy",
+    "name": "剑仙飞升",
+    "type": "ultimate",
+    "cooldown": 60000,
+    "kiCost": 100,
+    "damage": 450,
+    "range": 350,
+    "description": "全屏剑气，高爆发伤害"
+  }
+}

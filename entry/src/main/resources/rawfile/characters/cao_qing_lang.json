@@ -1,0 +1,58 @@
+{
+  "id": "cao_qing_lang",
+  "name": "曹晴朗",
+  "faction": "scholar",
+  "color": "#3498DB",
+  "baseStats": {
+    "maxHp": 900,
+    "currentHp": 900,
+    "attack": 90,
+    "defense": 55,
+    "speed": 5
+  },
+  "modeSwitch": {
+    "hasAlternateMode": false
+  },
+  "skills": [
+    {
+      "id": "strategy",
+      "name": "谋略",
+      "type": "active",
+      "cooldown": 12000,
+      "kiCost": 15,
+      "damage": 100,
+      "range": 150,
+      "description": "智谋攻击，附加混乱"
+    },
+    {
+      "id": "encouragement",
+      "name": "鼓舞",
+      "type": "active",
+      "cooldown": 15000,
+      "kiCost": 25,
+      "damage": 0,
+      "range": 0,
+      "description": "提升全体友军攻击力"
+    },
+    {
+      "id": "formations",
+      "name": "阵法",
+      "type": "active",
+      "cooldown": 18000,
+      "kiCost": 30,
+      "damage": 0,
+      "range": 0,
+      "description": "设置防御阵法，减伤30%"
+    }
+  ],
+  "ultimate": {
+    "id": "heaven_strategy",
+    "name": "天策",
+    "type": "ultimate",
+    "cooldown": 60000,
+    "kiCost": 100,
+    "damage": 300,
+    "range": 400,
+    "description": "全局策略，削弱敌人并强化友军"
+  }
+}
