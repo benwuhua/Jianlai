@@ -18,6 +18,10 @@ export interface CharacterStats {
 
 // 角色类
 export class Character {
+  // 常量
+  private static readonly GROUND_Y = 500;
+  private static readonly ATTACK_DURATION = 500; // 攻击持续时间（毫秒）
+
   id: string;
   name: string;
   state: CharacterState;
@@ -36,6 +40,9 @@ export class Character {
 
   // 面向方向 (1: 右, -1: 左)
   facing: number = 1;
+
+  // 攻击状态管理
+  private attackDuration: number = 0;
 
   constructor(id: string, name: string, x: number, y: number, color: string) {
     this.id = id;
@@ -59,13 +66,23 @@ export class Character {
 
   // 更新位置
   update(deltaTime: number): void {
-    this.x += this.velocityX;
-    this.y += this.velocityY;
+    // 使用deltaTime标准化速度（假设deltaTime单位为秒）
+    this.x += this.velocityX * deltaTime * 60; // 60是基准帧率
+    this.y += this.velocityY * deltaTime * 60;
 
     // 简单的地面碰撞
-    if (this.y > 500) {
-      this.y = 500;
+    if (this.y >= Character.GROUND_Y) {
+      this.y = Character.GROUND_Y;
       this.velocityY = 0;
+    }
+
+    // 更新攻击状态
+    if (this.state === CharacterState.ATTACKING) {
+      this.attackDuration -= deltaTime * 1000; // 转换为毫秒
+      if (this.attackDuration <= 0) {
+        this.state = CharacterState.IDLE;
+        this.attackDuration = 0;
+      }
     }
   }
 
@@ -93,7 +110,7 @@ export class Character {
 
   // 跳跃
   jump(): void {
-    if (this.y === 500) { // 在地面
+    if (this.y >= Character.GROUND_Y) { // 在地面
       this.velocityY = -15;
     }
   }
@@ -101,6 +118,7 @@ export class Character {
   // 攻击
   attack(): void {
     this.state = CharacterState.ATTACKING;
+    this.attackDuration = Character.ATTACK_DURATION;
     // TODO: 实现攻击逻辑
   }
 }
