@@ -75,9 +75,9 @@ export class Character {
 
   // 更新位置
   update(deltaTime: number): void {
-    // 使用deltaTime标准化速度（假设deltaTime单位为秒）
-    this.x += this.velocityX * deltaTime * 60; // 60是基准帧率
-    this.y += this.velocityY * deltaTime * 60;
+    // 使用deltaTime标准化速度（deltaTime单位为毫秒）
+    this.x += this.velocityX * deltaTime * 60 / 1000; // 60是基准帧率，1000转换为秒
+    this.y += this.velocityY * deltaTime * 60 / 1000;
 
     // 更新攻击冷却
     if (this.attackCooldown > 0) {

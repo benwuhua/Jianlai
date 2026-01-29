@@ -1,6 +1,6 @@
 import { GameEngine } from '../game/GameEngine';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { KeyType } from '@kit.ArkUI';
+import { KeyType, TouchType } from '@kit.ArkUI';
 import { HealthBar } from '../components/HealthBar';
 import { SkillButton } from '../components/SkillButton';
 
@@ -97,6 +97,13 @@ struct Index {
               }
             }
           })
+          .onTouch((event: TouchEvent) => {
+            if (this.gameEngine) {
+              if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
+                this.gameEngine.handleKeyUp('j');
+              }
+            }
+          })
           .margin({ right: 20 })
 
           SkillButton({
@@ -104,6 +111,13 @@ struct Index {
             onAction: () => {
               if (this.gameEngine) {
                 this.gameEngine.handleKeyDown('w');
+              }
+            }
+          })
+          .onTouch((event: TouchEvent) => {
+            if (this.gameEngine) {
+              if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
+                this.gameEngine.handleKeyUp('w');
               }
             }
           })
