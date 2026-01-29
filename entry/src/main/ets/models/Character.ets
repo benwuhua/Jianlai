@@ -1,4 +1,5 @@
 import { AudioManager } from '../utils/AudioManager';
+import { Skill, SkillConfig } from './Skill';
 
 // 角色状态枚举
 export enum CharacterState {
@@ -52,6 +53,12 @@ export class Character {
   // 受击硬直状态管理
   private hurtDuration: number = 0;
   private static readonly HURT_DURATION = 100; // ms
+
+  // 技能系统
+  private skills: Skill[] = [];
+  private ultimateSkill: Skill | null = null;
+  private currentKi: number = 0;
+  private readonly maxKi: number = 100;
 
   constructor(id: string, name: string, x: number, y: number, color: string) {
     this.id = id;
@@ -186,5 +193,42 @@ export class Character {
   // 检查是否在伤害判定窗口（攻击的前100ms：300ms持续时间 - 200ms阈值）
   canDealDamage(): boolean {
     return this.attackDuration > Character.DAMAGE_WINDOW_START;
+  }
+
+  // 设置技能
+  setSkills(skillConfigs: SkillConfig[]): void {
+    this.skills = skillConfigs.map(config => new Skill(config));
+  }
+
+  // 设置必杀技
+  setUltimate(skillConfig: SkillConfig): void {
+    this.ultimateSkill = new Skill(skillConfig);
+  }
+
+  // 获取技能列表
+  getSkills(): Skill[] {
+    return this.skills;
+  }
+
+  // 获取必杀技
+  getUltimate(): Skill | null {
+    return this.ultimateSkill;
+  }
+
+  // 剑气管理
+  addKi(amount: number): void {
+    this.currentKi = Math.min(this.maxKi, this.currentKi + amount);
+  }
+
+  consumeKi(amount: number): boolean {
+    if (this.currentKi >= amount) {
+      this.currentKi -= amount;
+      return true;
+    }
+    return false;
+  }
+
+  getKiPercent(): number {
+    return this.currentKi / this.maxKi;
   }
 }
