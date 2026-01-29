@@ -46,6 +46,10 @@ export class Character {
   private attackCooldown: number = 0;
   private attackDuration: number = 0;
 
+  // 受击硬直状态管理
+  private hurtDuration: number = 0;
+  private static readonly HURT_DURATION = 100; // ms
+
   constructor(id: string, name: string, x: number, y: number, color: string) {
     this.id = id;
     this.name = name;
@@ -83,6 +87,18 @@ export class Character {
       if (this.attackDuration <= 0) {
         this.state = CharacterState.IDLE;
         this.attackDuration = 0;
+      }
+    }
+
+    // 更新受击硬直状态
+    if (this.hurtDuration > 0) {
+      this.hurtDuration -= deltaTime * 1000;
+      if (this.hurtDuration <= 0) {
+        if (this.stats.currentHp > 0) {
+          this.state = CharacterState.IDLE;
+        } else {
+          this.state = CharacterState.DEAD;
+        }
       }
     }
 
@@ -139,15 +155,7 @@ export class Character {
     const actualDamage = Math.max(1, damage - this.stats.defense);
     this.stats.currentHp = Math.max(0, this.stats.currentHp - actualDamage);
     this.state = CharacterState.HURT;
-
-    // 受击硬直100ms
-    setTimeout(() => {
-      if (this.stats.currentHp > 0) {
-        this.state = CharacterState.IDLE;
-      } else {
-        this.state = CharacterState.DEAD;
-      }
-    }, 100);
+    this.hurtDuration = Character.HURT_DURATION;
   }
 
   // 检查是否死亡
@@ -158,5 +166,10 @@ export class Character {
   // 检查是否正在攻击
   isAttacking(): boolean {
     return this.attackDuration > 0;
+  }
+
+  // 检查是否在伤害判定窗口（攻击前100ms内）
+  canDealDamage(): boolean {
+    return this.attackDuration > 200;
   }
 }

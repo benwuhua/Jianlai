@@ -28,7 +28,7 @@ export class BattleSystem {
     }
 
     // 造成伤害（避免重复判定：只在攻击开始时造成伤害）
-    if (attacker['attackDuration'] > 200) {
+    if (attacker.canDealDamage()) {
       target.takeDamage(attacker.stats.attack);
       hilog.info(DOMAIN, TAG, '%{public}s hit %{public}s for %{public}d damage',
         attacker.name, target.name, attacker.stats.attack);
