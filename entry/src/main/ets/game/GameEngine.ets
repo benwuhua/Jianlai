@@ -3,6 +3,7 @@ import { Character } from '../models/Character';
 import { CharacterRenderer } from '../components/CharacterRenderer';
 import { InputController } from './InputController';
 import { CollisionDetector } from '../utils/CollisionDetector';
+import { BattleSystem } from './BattleSystem';
 
 const DOMAIN = 0x0000;
 const TAG = 'GameEngine';
@@ -20,6 +21,7 @@ export class GameEngine {
   private player: Character;
   private enemy: Character;
   private inputController: InputController;
+  private battleOver: boolean = false;
 
   constructor(canvas: CanvasRenderingContext2D) {
     if (!canvas) {
@@ -35,6 +37,9 @@ export class GameEngine {
 
     // 创建输入控制器
     this.inputController = new InputController(this.player);
+
+    // 初始化战斗状态
+    this.battleOver = false;
 
     hilog.info(DOMAIN, TAG, 'GameEngine initialized successfully');
   }
@@ -77,6 +82,11 @@ export class GameEngine {
 
   // 更新游戏逻辑（每帧调用）
   private update(deltaTime: number): void {
+    // 如果战斗结束，停止更新
+    if (this.battleOver) {
+      return;
+    }
+
     // 更新角色位置
     this.player.update(deltaTime);
     this.enemy.update(deltaTime);
@@ -108,7 +118,20 @@ export class GameEngine {
       }
     }
 
-    // TODO: 在Task 5中添加BattleSystem攻击判定
+    // 处理攻击判定
+    BattleSystem.handleAttack(this.player, this.enemy);
+    BattleSystem.handleAttack(this.enemy, this.player);
+
+    // 检测战斗是否结束
+    if (BattleSystem.isBattleOver(this.player, this.enemy)) {
+      this.battleOver = true;
+      const winner = BattleSystem.getWinner(this.player, this.enemy);
+      if (winner) {
+        hilog.info(DOMAIN, TAG, 'Battle over! Winner: %{public}s', winner.name);
+      } else {
+        hilog.info(DOMAIN, TAG, 'Battle over! Draw!');
+      }
+    }
   }
 
   // 渲染画面（每帧调用）

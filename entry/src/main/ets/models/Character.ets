@@ -20,7 +20,8 @@ export interface CharacterStats {
 export class Character {
   // 常量
   private static readonly GROUND_Y = 500;
-  private static readonly ATTACK_DURATION = 500; // 攻击持续时间（毫秒）
+  private static readonly ATTACK_DURATION = 300; // 攻击持续时间（毫秒）
+  private static readonly ATTACK_COOLDOWN_TIME = 500; // 攻击冷却时间（毫秒）
 
   id: string;
   name: string;
@@ -42,6 +43,7 @@ export class Character {
   facing: number = 1;
 
   // 攻击状态管理
+  private attackCooldown: number = 0;
   private attackDuration: number = 0;
 
   constructor(id: string, name: string, x: number, y: number, color: string) {
@@ -70,19 +72,24 @@ export class Character {
     this.x += this.velocityX * deltaTime * 60; // 60是基准帧率
     this.y += this.velocityY * deltaTime * 60;
 
-    // 简单的地面碰撞
-    if (this.y >= Character.GROUND_Y) {
-      this.y = Character.GROUND_Y;
-      this.velocityY = 0;
+    // 更新攻击冷却
+    if (this.attackCooldown > 0) {
+      this.attackCooldown -= deltaTime * 1000;
     }
 
-    // 更新攻击状态
-    if (this.state === CharacterState.ATTACKING) {
-      this.attackDuration -= deltaTime * 1000; // 转换为毫秒
+    // 更新攻击持续时间
+    if (this.attackDuration > 0) {
+      this.attackDuration -= deltaTime * 1000;
       if (this.attackDuration <= 0) {
         this.state = CharacterState.IDLE;
         this.attackDuration = 0;
       }
+    }
+
+    // 简单的地面碰撞
+    if (this.y >= Character.GROUND_Y) {
+      this.y = Character.GROUND_Y;
+      this.velocityY = 0;
     }
   }
 
@@ -117,8 +124,39 @@ export class Character {
 
   // 攻击
   attack(): void {
+    // 检查是否在冷却中
+    if (this.attackCooldown > 0 || this.attackDuration > 0) {
+      return;
+    }
+
     this.state = CharacterState.ATTACKING;
     this.attackDuration = Character.ATTACK_DURATION;
-    // TODO: 实现攻击逻辑
+    this.attackCooldown = Character.ATTACK_COOLDOWN_TIME;
+  }
+
+  // 受到伤害
+  takeDamage(damage: number): void {
+    const actualDamage = Math.max(1, damage - this.stats.defense);
+    this.stats.currentHp = Math.max(0, this.stats.currentHp - actualDamage);
+    this.state = CharacterState.HURT;
+
+    // 受击硬直100ms
+    setTimeout(() => {
+      if (this.stats.currentHp > 0) {
+        this.state = CharacterState.IDLE;
+      } else {
+        this.state = CharacterState.DEAD;
+      }
+    }, 100);
+  }
+
+  // 检查是否死亡
+  isDead(): boolean {
+    return this.stats.currentHp <= 0;
+  }
+
+  // 检查是否正在攻击
+  isAttacking(): boolean {
+    return this.attackDuration > 0;
   }
 }
