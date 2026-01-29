@@ -2,6 +2,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { Character } from '../models/Character';
 import { CharacterRenderer } from '../components/CharacterRenderer';
 import { InputController } from './InputController';
+import { CollisionDetector } from '../utils/CollisionDetector';
 
 const DOMAIN = 0x0000;
 const TAG = 'GameEngine';
@@ -76,9 +77,32 @@ export class GameEngine {
 
   // 更新游戏逻辑（每帧调用）
   private update(deltaTime: number): void {
-    // 更新角色
+    // 更新角色位置
     this.player.update(deltaTime);
     this.enemy.update(deltaTime);
+
+    // 屏幕边界碰撞
+    if (this.canvas) {
+      CollisionDetector.clampToScreen(this.player, this.canvas.width, this.canvas.height);
+      CollisionDetector.clampToScreen(this.enemy, this.canvas.width, this.canvas.height);
+    }
+
+    // 检测角色间碰撞
+    if (CollisionDetector.checkAABB(this.player, this.enemy)) {
+      // 简单的碰撞响应：互相推开
+      const overlap = (this.player.width + this.enemy.width) / 2 -
+                     Math.abs(this.player.x - this.enemy.x);
+
+      if (this.player.x < this.enemy.x) {
+        this.player.x -= overlap / 2;
+        this.enemy.x += overlap / 2;
+      } else {
+        this.player.x += overlap / 2;
+        this.enemy.x -= overlap / 2;
+      }
+    }
+
+    // TODO: 在Task 5中添加BattleSystem攻击判定
   }
 
   // 渲染画面（每帧调用）
