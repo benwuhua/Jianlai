@@ -1,23 +1,45 @@
+import { GameEngine } from '../game/GameEngine';
+
 @Entry
 @Component
 struct Index {
-  @State message: string = 'Hello World';
+  @State private canvasContext: CanvasRenderingContext2D | null = null;
+  private gameEngine: GameEngine | null = null;
 
   build() {
     RelativeContainer() {
-      Text(this.message)
-        .id('HelloWorld')
-        .fontSize($r('app.float.page_text_font_size'))
-        .fontWeight(FontWeight.Bold)
-        .alignRules({
-          center: { anchor: '__container__', align: VerticalAlign.Center },
-          middle: { anchor: '__container__', align: HorizontalAlign.Center }
+      Canvas(this.canvasContext)
+        .id('GameCanvas')
+        .width('100%')
+        .height('100%')
+        .onReady(() => {
+          // Canvas准备好后，创建游戏引擎
+          if (this.canvasContext) {
+            this.gameEngine = new GameEngine(this.canvasContext);
+            this.gameEngine.start();
+          }
         })
-        .onClick(() => {
-          this.message = 'Welcome';
+        .alignRules({
+          top: { anchor: '__container__', align: VerticalAlign.Top },
+          bottom: { anchor: '__container__', align: VerticalAlign.Bottom },
+          left: { anchor: '__container__', align: HorizontalAlign.Start },
+          right: { anchor: '__container__', align: HorizontalAlign.End }
         })
     }
-    .height('100%')
     .width('100%')
+    .height('100%')
+    .backgroundColor('#000000')
+  }
+
+  // 初始化Canvas上下文
+  aboutToAppear() {
+    this.canvasContext = new CanvasRenderingContext2D();
+  }
+
+  // 清理资源
+  aboutToDisappear() {
+    if (this.gameEngine) {
+      this.gameEngine.stop();
+    }
   }
 }
