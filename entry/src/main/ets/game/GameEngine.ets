@@ -1,4 +1,6 @@
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { Character } from '../models/Character';
+import { CharacterRenderer } from '../components/CharacterRenderer';
 
 const DOMAIN = 0x0000;
 const TAG = 'GameEngine';
@@ -12,11 +14,22 @@ export class GameEngine {
   private canvas: CanvasRenderingContext2D | null = null;
   private frameCount: number = 0; // 帧计数器
 
+  // 游戏对象
+  private player: Character;
+  private enemy: Character;
+
   constructor(canvas: CanvasRenderingContext2D) {
     if (!canvas) {
       throw new Error('Canvas context cannot be null');
     }
     this.canvas = canvas;
+
+    // 创建玩家角色
+    this.player = new Character('player', '陈平安', 200, 500, '#4A90E2');
+
+    // 创建敌人
+    this.enemy = new Character('enemy', '敌人', 600, 500, '#E74C3C');
+
     hilog.info(DOMAIN, TAG, 'GameEngine initialized successfully');
   }
 
@@ -58,7 +71,9 @@ export class GameEngine {
 
   // 更新游戏逻辑（每帧调用）
   private update(deltaTime: number): void {
-    // TODO: 实现更新逻辑
+    // 更新角色
+    this.player.update(deltaTime);
+    this.enemy.update(deltaTime);
   }
 
   // 渲染画面（每帧调用）
@@ -68,6 +83,16 @@ export class GameEngine {
     // 清空画布
     this.canvas.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // TODO: 渲染游戏对象
+    // 绘制背景（简单的地面）
+    this.canvas.fillStyle = '#2C3E50';
+    this.canvas.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // 绘制地面
+    this.canvas.fillStyle = '#34495E';
+    this.canvas.fillRect(0, 500, this.canvas.width, this.canvas.height - 500);
+
+    // 渲染角色
+    CharacterRenderer.render(this.canvas, this.player);
+    CharacterRenderer.render(this.canvas, this.enemy);
   }
 }
