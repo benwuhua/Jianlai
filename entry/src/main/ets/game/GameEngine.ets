@@ -22,6 +22,7 @@ export class GameEngine {
   private enemy: Character;
   private inputController: InputController;
   private battleOver: boolean = false;
+  private uiUpdateCallback?: (playerHp: number, playerMaxHp: number, enemyHp: number, enemyMaxHp: number) => void;
 
   constructor(canvas: CanvasRenderingContext2D) {
     if (!canvas) {
@@ -132,6 +133,16 @@ export class GameEngine {
         hilog.info(DOMAIN, TAG, 'Battle over! Draw!');
       }
     }
+
+    // 更新UI
+    if (this.uiUpdateCallback) {
+      this.uiUpdateCallback(
+        this.player.stats.currentHp,
+        this.player.stats.maxHp,
+        this.enemy.stats.currentHp,
+        this.enemy.stats.maxHp
+      );
+    }
   }
 
   // 渲染画面（每帧调用）
@@ -161,5 +172,10 @@ export class GameEngine {
 
   handleKeyUp(key: string): void {
     this.inputController.onKeyUp(key);
+  }
+
+  // 设置UI更新回调
+  setUIUpdateCallback(callback: (playerHp: number, playerMaxHp: number, enemyHp: number, enemyMaxHp: number) => void): void {
+    this.uiUpdateCallback = callback;
   }
 }
