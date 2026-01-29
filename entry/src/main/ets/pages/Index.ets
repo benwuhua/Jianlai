@@ -1,5 +1,6 @@
 import { GameEngine } from '../game/GameEngine';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { KeyType } from '@kit.ArkUI';
 
 const DOMAIN = 0x0000;
 const TAG = 'Index';
@@ -35,6 +36,16 @@ struct Index {
           bottom: { anchor: '__container__', align: VerticalAlign.Bottom },
           left: { anchor: '__container__', align: HorizontalAlign.Start },
           right: { anchor: '__container__', align: HorizontalAlign.End }
+        })
+        .onKeyEvent((event) => {
+          // 处理键盘事件
+          if (this.gameEngine) {
+            if (event.type === KeyType.Down) {
+              this.gameEngine.handleKeyDown(event.keyCode);
+            } else if (event.type === KeyType.Up) {
+              this.gameEngine.handleKeyUp(event.keyCode);
+            }
+          }
         })
     }
     .width('100%')

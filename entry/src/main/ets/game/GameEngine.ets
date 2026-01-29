@@ -1,6 +1,7 @@
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { Character } from '../models/Character';
 import { CharacterRenderer } from '../components/CharacterRenderer';
+import { InputController } from './InputController';
 
 const DOMAIN = 0x0000;
 const TAG = 'GameEngine';
@@ -17,6 +18,7 @@ export class GameEngine {
   // 游戏对象
   private player: Character;
   private enemy: Character;
+  private inputController: InputController;
 
   constructor(canvas: CanvasRenderingContext2D) {
     if (!canvas) {
@@ -29,6 +31,9 @@ export class GameEngine {
 
     // 创建敌人
     this.enemy = new Character('enemy', '敌人', 600, 500, '#E74C3C');
+
+    // 创建输入控制器
+    this.inputController = new InputController(this.player);
 
     hilog.info(DOMAIN, TAG, 'GameEngine initialized successfully');
   }
@@ -94,5 +99,14 @@ export class GameEngine {
     // 渲染角色
     CharacterRenderer.render(this.canvas, this.player);
     CharacterRenderer.render(this.canvas, this.enemy);
+  }
+
+  // 提供输入控制接口
+  handleKeyDown(key: string): void {
+    this.inputController.onKeyDown(key);
+  }
+
+  handleKeyUp(key: string): void {
+    this.inputController.onKeyUp(key);
   }
 }
