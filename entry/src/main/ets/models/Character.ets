@@ -5,6 +5,7 @@ import { ModeManager, CharacterMode } from '../game/ModeManager';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const DOMAIN = 0x0000;
+const TAG = 'Character';
 
 // 角色状态枚举
 export enum CharacterState {
@@ -312,7 +313,7 @@ export class Character {
       this.state = CharacterState.IDLE;
     }, 2000);
 
-    hilog.info(DOMAIN, 'Character', 'Switched to %{public}s mode', newMode);
+    hilog.info(DOMAIN, TAG, 'Switched to %{public}s mode', newMode);
 
     return true;
   }

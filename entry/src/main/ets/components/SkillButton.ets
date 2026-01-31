@@ -1,7 +1,7 @@
 @Component
 export struct SkillButton {
   @Prop label: string;
-  @Prop onAction: () => void = () => {};
+  onAction: () => void = () => {};
   @State isPressed: boolean = false;
 
   build() {

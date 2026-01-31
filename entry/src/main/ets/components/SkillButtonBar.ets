@@ -11,7 +11,7 @@ export struct SkillButton {
   @Prop kiCost: number = 0;
   @Prop canUse: boolean = true;
   @Prop isUltimate: boolean = false;
-  private onAction: () => void = () => {};
+  onAction: () => void = () => {};
 
   build() {
     Column() {
@@ -117,8 +117,8 @@ export struct SkillButtonBar {
   @Prop maxKi: number = 100;
   @Prop canUseSkills: boolean[] = [];
   @Prop canUseUltimate: boolean = false;
-  private onSkillPress: (index: number) => void = () => {};
-  private onUltimatePress: () => void = () => {};
+  onSkillPress: (index: number) => void = () => {};
+  onUltimatePress: () => void = () => {};
 
   build() {
     Column() {
