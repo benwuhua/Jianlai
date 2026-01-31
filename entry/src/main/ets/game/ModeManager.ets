@@ -53,7 +53,7 @@ export class ModeManager {
       ultimate: { ...defaultUltimate }
     };
 
-    this.alternateConfig = {
+    this.alternateModeConfig = {
       stats: { ...alternateStats },
       skills: [...alternateSkills],
       ultimate: { ...alternateUltimate }
@@ -116,13 +116,5 @@ export class ModeManager {
       ultimate: { ...ultimate }
     };
     hilog.info(DOMAIN, TAG, 'Alternate mode config set');
-  }
-
-  private get alternateConfig(): any {
-    return this.alternateModeConfig;
-  }
-
-  private set alternateConfig(value: any) {
-    this.alternateModeConfig = value;
   }
 }
