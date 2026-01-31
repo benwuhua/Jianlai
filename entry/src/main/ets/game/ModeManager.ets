@@ -1,22 +1,33 @@
 import { SkillManager } from './SkillManager';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { SkillConfig } from '../models/Skill';
 
 const DOMAIN = 0x0000;
 const TAG = 'ModeManager';
 
 export type CharacterMode = 'default' | 'alternate';
 
+// 模式属性配置类型
+interface ModeStats {
+  maxHp: number;
+  currentHp: number;
+  attack: number;
+  defense: number;
+  speed: number;
+}
+
 // 模式配置接口
 export interface ModeConfig {
-  baseStats: {
-    maxHp: number;
-    currentHp: number;
-    attack: number;
-    defense: number;
-    speed: number;
-  };
-  skills: any[];
-  ultimate: any;
+  baseStats: ModeStats;
+  skills: SkillConfig[];
+  ultimate: SkillConfig;
+}
+
+// 内部模式配置类型
+interface InternalModeConfig {
+  stats: ModeStats;
+  skills: SkillConfig[];
+  ultimate: SkillConfig;
 }
 
 export class ModeManager {
@@ -25,24 +36,53 @@ export class ModeManager {
   private readonly SWITCH_COOLDOWN_TIME: number;
 
   // 默认模式和备用模式的配置
-  private defaultModeConfig: {
-    stats: any;
-    skills: any[];
-    ultimate: any;
+  private defaultModeConfig: InternalModeConfig = {
+    stats: {
+      maxHp: 0,
+      currentHp: 0,
+      attack: 0,
+      defense: 0,
+      speed: 0
+    },
+    skills: [],
+    ultimate: {
+      id: '',
+      name: '',
+      type: 'active',
+      cooldown: 0,
+      kiCost: 0,
+      damage: 0,
+      range: 0
+    }
   };
-  private alternateModeConfig: {
-    stats: any;
-    skills: any[];
-    ultimate: any;
+
+  private alternateModeConfig: InternalModeConfig = {
+    stats: {
+      maxHp: 0,
+      currentHp: 0,
+      attack: 0,
+      defense: 0,
+      speed: 0
+    },
+    skills: [],
+    ultimate: {
+      id: '',
+      name: '',
+      type: 'active',
+      cooldown: 0,
+      kiCost: 0,
+      damage: 0,
+      range: 0
+    }
   };
 
   constructor(
-    defaultSkills: any[],
-    defaultUltimate: any,
-    defaultStats: any,
-    alternateSkills: any[],
-    alternateUltimate: any,
-    alternateStats: any,
+    defaultSkills: SkillConfig[],
+    defaultUltimate: SkillConfig,
+    defaultStats: ModeStats,
+    alternateSkills: SkillConfig[],
+    alternateUltimate: SkillConfig,
+    alternateStats: ModeStats,
     switchCooldown: number
   ) {
     this.SWITCH_COOLDOWN_TIME = switchCooldown;
@@ -96,7 +136,7 @@ export class ModeManager {
   }
 
   // 获取当前模式的配置
-  getCurrentModeConfig(): { stats: any; skills: any[]; ultimate: any } {
+  getCurrentModeConfig(): InternalModeConfig {
     if (this.currentMode === 'default') {
       return this.defaultModeConfig;
     }
@@ -109,7 +149,7 @@ export class ModeManager {
   }
 
   // 设置备用模式配置
-  setAlternateConfig(skills: any[], ultimate: any, stats: any): void {
+  setAlternateConfig(skills: SkillConfig[], ultimate: SkillConfig, stats: ModeStats): void {
     this.alternateModeConfig = {
       stats: { ...stats },
       skills: [...skills],

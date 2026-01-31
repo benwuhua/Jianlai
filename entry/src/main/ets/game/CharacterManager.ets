@@ -2,10 +2,18 @@ import { Character } from '../models/Character';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { resourceManager } from '@kit.LocalizationKit';
 import { SkillManager } from './SkillManager';
-import { ModeManager } from './ModeManager';
+import { ModeManager, ModeConfig } from './ModeManager';
+import { SkillConfig } from '../models/Skill';
 
 const DOMAIN = 0x0000;
 const TAG = 'CharacterManager';
+
+// 模式切换配置
+interface ModeSwitchConfig {
+  hasAlternateMode: boolean;
+  alternateMode?: string;
+  switchCooldown: number;
+}
 
 // 角色配置接口（从JSON加载）
 export interface CharacterData {
@@ -20,10 +28,10 @@ export interface CharacterData {
     defense: number;
     speed: number;
   };
-  skills: any[];
-  ultimate: any;
-  modeSwitch?: any;
-  martialMode?: any;
+  skills: SkillConfig[];
+  ultimate: SkillConfig;
+  modeSwitch?: ModeSwitchConfig;
+  martialMode?: ModeConfig;
 }
 
 export class CharacterManager {
