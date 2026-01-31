@@ -4,10 +4,13 @@ import { Character, CharacterState } from '../models/Character';
 interface Canvas2DContext {
   fillStyle: string | CanvasGradient | CanvasPattern;
   font: string;
-  fillText: string, x: number, y: number, maxWidth?: number): void;
+  textAlign: string;
+  fill(text: string): void;
+  fillText(text: string, x: number, y: number, maxWidth?: number): void;
   fillRect(x: number, y: number, width: number, height: number): void;
   strokeStyle: string | CanvasGradient | CanvasPattern;
   lineWidth: number;
+  stroke(): void;
   strokeRect(x: number, y: number, width: number, height: number): void;
   beginPath(): void;
   closePath(): void;
@@ -15,6 +18,8 @@ interface Canvas2DContext {
   save(): void;
   restore(): void;
   clearRect(x: number, y: number, width: number, height: number): void;
+  width: number;
+  height: number;
 }
 
 export class CharacterRenderer {
@@ -23,10 +28,10 @@ export class CharacterRenderer {
     ctx.save();
 
     // 绘制技能特效（在角色后面）
-    this.renderSkillEffect(ctx, character);
+    CharacterRenderer.renderSkillEffect(ctx, character);
 
     // 绘制攻击特效
-    this.renderAttackEffect(ctx, character);
+    CharacterRenderer.renderAttackEffect(ctx, character);
 
     // 绘制角色身体（简单的矩形）
     let bodyColor = character.color;
@@ -58,13 +63,13 @@ export class CharacterRenderer {
     ctx.fillText(character.name, character.x, character.y - character.height - 10);
 
     // 绘制模式标签（如果有）
-    this.renderModeLabel(ctx, character);
+    CharacterRenderer.renderModeLabel(ctx, character);
 
     // 绘制血条
-    this.renderHealthBar(ctx, character);
+    CharacterRenderer.renderHealthBar(ctx, character);
 
     // 绘制剑气槽
-    this.renderKiBar(ctx, character);
+    CharacterRenderer.renderKiBar(ctx, character);
 
     ctx.restore();
   }

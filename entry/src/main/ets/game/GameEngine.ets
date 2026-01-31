@@ -11,13 +11,22 @@ import { CharacterManager } from './CharacterManager';
 const DOMAIN = 0x0000;
 const TAG = 'GameEngine';
 
+// Canvas 上下文接口
+interface GameCanvas {
+  width: number;
+  height: number;
+  clearRect(x: number, y: number, width: number, height: number): void;
+  fillStyle: string | CanvasGradient | CanvasPattern;
+  fillRect(x: number, y: number, width: number, height: number): void;
+}
+
 export class GameEngine {
   // 常量定义
   private static readonly LOG_FRAME_INTERVAL = 60; // 每60帧打印一次日志
 
   private isRunning: boolean = false;
   private lastFrameTime: number = 0;
-  private canvas: any | null = null;
+  private canvas: GameCanvas | null = null;
   private frameCount: number = 0; // 帧计数器
 
   // 游戏对象

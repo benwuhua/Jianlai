@@ -11,10 +11,19 @@ import { AIDifficulty } from '../models/AIBehavior';
 const DOMAIN = 0x0000;
 const TAG = 'Index';
 
+// Canvas 上下文接口（与 GameEngine 共享）
+interface GameCanvas {
+  width: number;
+  height: number;
+  clearRect(x: number, y: number, width: number, height: number): void;
+  fillStyle: string | CanvasGradient | CanvasPattern;
+  fillRect(x: number, y: number, width: number, height: number): void;
+}
+
 @Entry
 @Component
 struct Index {
-  @State private canvasContext: any | null = null;
+  @State private canvasContext: GameCanvas | null = null;
   private gameEngine: GameEngine | null = null;
 
   // 导航参数
@@ -154,7 +163,7 @@ struct Index {
               name: this.playerName,
               currentHp: this.playerHp,
               maxHp: this.playerMaxHp,
-              position: 'top'
+              barPosition: 'top'
             })
 
             Blank()
@@ -163,7 +172,7 @@ struct Index {
               name: '敌人',
               currentHp: this.enemyHp,
               maxHp: this.enemyMaxHp,
-              position: 'top'
+              barPosition: 'top'
             })
           }
           .width('100%')

@@ -69,7 +69,9 @@ export class CharacterManager {
       for (const fileName of characterFiles) {
         try {
           const content = await resourceManager.getRawFileContent(`characters/${fileName}`);
-          const charData: CharacterData = JSON.parse(content);
+          const decoder = new TextDecoder('utf-8');
+          const text = decoder.decode(content);
+          const charData: CharacterData = JSON.parse(text);
 
           this.characterConfigs.set(charData.id, charData);
           hilog.info(DOMAIN, TAG, 'Loaded character: %{public}s', charData.name);
@@ -173,7 +175,16 @@ export class CharacterManager {
     character.stats = { ...config.baseStats };
 
     // 创建并设置技能管理器
-    const skillManager = new SkillManager(config.skills || [], config.ultimate || {});
+    const defaultUltimate: SkillConfig = {
+      id: '',
+      name: '',
+      type: 'active',
+      cooldown: 0,
+      kiCost: 0,
+      damage: 0,
+      range: 0
+    };
+    const skillManager = new SkillManager(config.skills || [], config.ultimate || defaultUltimate);
     character.setSkillManager(skillManager);
 
     // 如果有双模式，创建并设置模式管理器
