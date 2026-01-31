@@ -1,6 +1,7 @@
 import { GameEngine } from '../game/GameEngine';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { KeyType, TouchType, router } from '@kit.ArkUI';
+import { CanvasRenderingContext2D } from '@kit.ArkGraphics2D';
 import { HealthBar } from '../components/HealthBar';
 import { SkillButton } from '../components/SkillButton';
 import { SkillButtonBar } from '../components/SkillButtonBar';
