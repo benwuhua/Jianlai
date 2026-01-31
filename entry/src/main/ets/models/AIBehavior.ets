@@ -12,42 +12,64 @@ export interface AIBehavior {
   canPredict: boolean;       // 是否会预判
 }
 
+// AI行为工厂类
+class AIBehaviorFactory {
+  static createEasy(): AIBehavior {
+    return {
+      difficulty: 'easy',
+      reactionTime: 1000,
+      blockRate: 0.0,
+      skillUsageRate: 0.0,
+      attackInterval: 4000,
+      canCombo: false,
+      canPredict: false
+    };
+  }
+
+  static createNormal(): AIBehavior {
+    return {
+      difficulty: 'normal',
+      reactionTime: 500,
+      blockRate: 0.3,
+      skillUsageRate: 0.2,
+      attackInterval: 2500,
+      canCombo: false,
+      canPredict: false
+    };
+  }
+
+  static createHard(): AIBehavior {
+    return {
+      difficulty: 'hard',
+      reactionTime: 200,
+      blockRate: 0.6,
+      skillUsageRate: 0.5,
+      attackInterval: 1500,
+      canCombo: true,
+      canPredict: true
+    };
+  }
+
+  static createExtreme(): AIBehavior {
+    return {
+      difficulty: 'extreme',
+      reactionTime: 100,
+      blockRate: 0.8,
+      skillUsageRate: 0.8,
+      attackInterval: 800,
+      canCombo: true,
+      canPredict: true
+    };
+  }
+}
+
+// AI行为配置访问器类
+class AIBehaviorAccessor {
+  get easy(): AIBehavior { return AIBehaviorFactory.createEasy(); }
+  get normal(): AIBehavior { return AIBehaviorFactory.createNormal(); }
+  get hard(): AIBehavior { return AIBehaviorFactory.createHard(); }
+  get extreme(): AIBehavior { return AIBehaviorFactory.createExtreme(); }
+}
+
 // 默认AI配置
-export const DEFAULT_AI_BEHAVIOR: Record<AIDifficulty, AIBehavior> = {
-  easy: {
-    difficulty: 'easy',
-    reactionTime: 1000,
-    blockRate: 0.0,
-    skillUsageRate: 0.0,
-    attackInterval: 4000,
-    canCombo: false,
-    canPredict: false
-  } as AIBehavior,
-  normal: {
-    difficulty: 'normal',
-    reactionTime: 500,
-    blockRate: 0.3,
-    skillUsageRate: 0.2,
-    attackInterval: 2500,
-    canCombo: false,
-    canPredict: false
-  } as AIBehavior,
-  hard: {
-    difficulty: 'hard',
-    reactionTime: 200,
-    blockRate: 0.6,
-    skillUsageRate: 0.5,
-    attackInterval: 1500,
-    canCombo: true,
-    canPredict: true
-  } as AIBehavior,
-  extreme: {
-    difficulty: 'extreme',
-    reactionTime: 100,
-    blockRate: 0.8,
-    skillUsageRate: 0.8,
-    attackInterval: 800,
-    canCombo: true,
-    canPredict: true
-  } as AIBehavior
-};
+export const DEFAULT_AI_BEHAVIOR = new AIBehaviorAccessor();

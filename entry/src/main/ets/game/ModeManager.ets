@@ -8,7 +8,7 @@ const TAG = 'ModeManager';
 export type CharacterMode = 'default' | 'alternate';
 
 // 模式属性配置类型
-interface ModeStats {
+export interface ModeStats {
   maxHp: number;
   currentHp: number;
   attack: number;
@@ -87,17 +87,14 @@ export class ModeManager {
   ) {
     this.SWITCH_COOLDOWN_TIME = switchCooldown;
 
-    this.defaultModeConfig = {
-      stats: { ...defaultStats },
-      skills: [...defaultSkills],
-      ultimate: { ...defaultUltimate }
-    };
+    // 直接使用参数初始化，避免对象字面量问题
+    this.defaultModeConfig.stats = defaultStats;
+    this.defaultModeConfig.skills = defaultSkills;
+    this.defaultModeConfig.ultimate = defaultUltimate;
 
-    this.alternateModeConfig = {
-      stats: { ...alternateStats },
-      skills: [...alternateSkills],
-      ultimate: { ...alternateUltimate }
-    };
+    this.alternateModeConfig.stats = alternateStats;
+    this.alternateModeConfig.skills = alternateSkills;
+    this.alternateModeConfig.ultimate = alternateUltimate;
 
     hilog.info(DOMAIN, TAG, 'ModeManager initialized with switch cooldown: %{public}dms', switchCooldown);
   }
@@ -151,9 +148,9 @@ export class ModeManager {
   // 设置备用模式配置
   setAlternateConfig(skills: SkillConfig[], ultimate: SkillConfig, stats: ModeStats): void {
     this.alternateModeConfig = {
-      stats: { ...stats },
-      skills: [...skills],
-      ultimate: { ...ultimate }
+      stats: { maxHp: stats.maxHp, currentHp: stats.currentHp, attack: stats.attack, defense: stats.defense, speed: stats.speed },
+      skills: skills.slice(),
+      ultimate: { id: ultimate.id, name: ultimate.name, type: ultimate.type, cooldown: ultimate.cooldown, kiCost: ultimate.kiCost, damage: ultimate.damage, range: ultimate.range }
     };
     hilog.info(DOMAIN, TAG, 'Alternate mode config set');
   }

@@ -5,8 +5,14 @@ import { CharacterManager, CharacterData } from '../game/CharacterManager';
 const DOMAIN = 0x0000;
 const TAG = 'CharacterSelect';
 
+// 阵营配置接口
+interface FactionConfig {
+  name: string;
+  color: string;
+}
+
 // 阵营配置
-const FACTION_CONFIG = {
+const FACTION_CONFIG: Record<string, FactionConfig> = {
   'swordsman': { name: '剑仙', color: '#4A90E2' },
   'confucian': { name: '儒道', color: '#9B59B6' },
   'buddhist': { name: '佛道', color: '#F39C12' },
@@ -34,6 +40,18 @@ struct CharacterSelect {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  // 获取阵营名称
+  private getFactionName(faction: string): string {
+    const config = FACTION_CONFIG[faction];
+    return config ? config.name : faction;
+  }
+
+  // 获取阵营颜色
+  private getFactionColor(faction: string): string {
+    const config = FACTION_CONFIG[faction];
+    return config ? config.color : '#CCCCCC';
   }
 
   build() {
@@ -155,9 +173,9 @@ struct CharacterSelect {
         .margin({ bottom: 5 })
 
       // 阵营标签
-      Text(FACTION_CONFIG[character.faction]?.name || character.faction)
+      Text(this.getFactionName(character.faction))
         .fontSize(14)
-        .fontColor(FACTION_CONFIG[character.faction]?.color || '#CCCCCC')
+        .fontColor(this.getFactionColor(character.faction))
         .margin({ bottom: 10 })
 
       // 基础属性

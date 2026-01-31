@@ -1,26 +1,7 @@
 import { Character, CharacterState } from '../models/Character';
 
-// Canvas 2D 上下文类型
-interface Canvas2DContext {
-  fillStyle: string | CanvasGradient | CanvasPattern;
-  font: string;
-  textAlign: string;
-  fill(text: string): void;
-  fillText(text: string, x: number, y: number, maxWidth?: number): void;
-  fillRect(x: number, y: number, width: number, height: number): void;
-  strokeStyle: string | CanvasGradient | CanvasPattern;
-  lineWidth: number;
-  stroke(): void;
-  strokeRect(x: number, y: number, width: number, height: number): void;
-  beginPath(): void;
-  closePath(): void;
-  arc(x: number, y: number, radius: number, startAngle: number, endAngle: number): void;
-  save(): void;
-  restore(): void;
-  clearRect(x: number, y: number, width: number, height: number): void;
-  width: number;
-  height: number;
-}
+// 使用 ArkTS 标准 CanvasRenderingContext2D 类型
+type Canvas2DContext = CanvasRenderingContext2D;
 
 export class CharacterRenderer {
   // 渲染角色

@@ -32,12 +32,28 @@ export class AIController {
   constructor(character: Character, target: Character, difficulty: AIDifficulty = 'normal') {
     this.character = character;
     this.target = target;
-    this.behavior = DEFAULT_AI_BEHAVIOR[difficulty];
+    this.behavior = this.getBehaviorByDifficulty(difficulty);
 
     this.reactionDelay = this.behavior.reactionTime;
 
     hilog.info(DOMAIN, TAG, 'AIController initialized for %{public}s with difficulty: %{public}s',
       character.name, difficulty);
+  }
+
+  // 根据难度获取AI行为配置
+  private getBehaviorByDifficulty(difficulty: AIDifficulty): AIBehavior {
+    switch (difficulty) {
+      case 'easy':
+        return DEFAULT_AI_BEHAVIOR.easy;
+      case 'normal':
+        return DEFAULT_AI_BEHAVIOR.normal;
+      case 'hard':
+        return DEFAULT_AI_BEHAVIOR.hard;
+      case 'extreme':
+        return DEFAULT_AI_BEHAVIOR.extreme;
+      default:
+        return DEFAULT_AI_BEHAVIOR.normal;
+    }
   }
 
   // 更新AI（每帧调用）
@@ -312,7 +328,7 @@ export class AIController {
 
   // 设置难度
   setDifficulty(difficulty: AIDifficulty): void {
-    this.behavior = DEFAULT_AI_BEHAVIOR[difficulty];
+    this.behavior = this.getBehaviorByDifficulty(difficulty);
     this.reactionDelay = this.behavior.reactionTime;
 
     hilog.info(DOMAIN, TAG, 'AI difficulty changed to: %{public}s', difficulty);

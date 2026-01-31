@@ -11,14 +11,8 @@ import { AIDifficulty } from '../models/AIBehavior';
 const DOMAIN = 0x0000;
 const TAG = 'Index';
 
-// Canvas 上下文接口（与 GameEngine 共享）
-interface GameCanvas {
-  width: number;
-  height: number;
-  clearRect(x: number, y: number, width: number, height: number): void;
-  fillStyle: string | CanvasGradient | CanvasPattern;
-  fillRect(x: number, y: number, width: number, height: number): void;
-}
+// 使用 ArkTS 标准 Canvas 类型
+type GameCanvas = CanvasRenderingContext2D;
 
 @Entry
 @Component
