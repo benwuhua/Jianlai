@@ -14,7 +14,7 @@ const TAG = 'Index';
 @Entry
 @Component
 struct Index {
-  @State private canvasContext: CanvasRenderingContext2D | null = null;
+  @State private canvasContext: any | null = null;
   private gameEngine: GameEngine | null = null;
 
   // 导航参数

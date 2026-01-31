@@ -2,7 +2,7 @@ import { Character, CharacterState } from '../models/Character';
 
 export class CharacterRenderer {
   // 渲染角色
-  static render(ctx: CanvasRenderingContext2D, character: Character): void {
+  static render(ctx: any, character: Character): void {
     ctx.save();
 
     // 绘制技能特效（在角色后面）
@@ -53,7 +53,7 @@ export class CharacterRenderer {
   }
 
   // 绘制技能特效
-  private static renderSkillEffect(ctx: CanvasRenderingContext2D, character: Character): void {
+  private static renderSkillEffect(ctx: any, character: Character): void {
     if (character.state === CharacterState.CASTING_SKILL) {
       const skillManager = character.getSkillManager();
       if (skillManager && skillManager.getCurrentKi() >= 90) {
@@ -96,7 +96,7 @@ export class CharacterRenderer {
   }
 
   // 绘制攻击特效
-  private static renderAttackEffect(ctx: CanvasRenderingContext2D, character: Character): void {
+  private static renderAttackEffect(ctx: any, character: Character): void {
     if (character.isAttacking()) {
       const attackRange = 120;
       const direction = character.facing;
@@ -118,7 +118,7 @@ export class CharacterRenderer {
   }
 
   // 绘制模式标签
-  private static renderModeLabel(ctx: CanvasRenderingContext2D, character: Character): void {
+  private static renderModeLabel(ctx: any, character: Character): void {
     if (character.hasAlternateMode()) {
       const mode = character.getCurrentMode();
       const modeText = mode === 'alternate' ? '武夫' : '剑修';
@@ -131,7 +131,7 @@ export class CharacterRenderer {
   }
 
   // 绘制血条
-  private static renderHealthBar(ctx: CanvasRenderingContext2D, character: Character): void {
+  private static renderHealthBar(ctx: any, character: Character): void {
     const hpBarWidth = 80;
     const hpBarHeight = 8;
     const hpPercent = character.stats.currentHp / character.stats.maxHp;
@@ -157,7 +157,7 @@ export class CharacterRenderer {
   }
 
   // 绘制剑气槽
-  private static renderKiBar(ctx: CanvasRenderingContext2D, character: Character): void {
+  private static renderKiBar(ctx: any, character: Character): void {
     const kiBarWidth = 60;
     const kiBarHeight = 5;
     const kiPercent = character.getKiPercent();

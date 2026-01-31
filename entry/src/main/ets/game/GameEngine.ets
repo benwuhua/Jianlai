@@ -17,7 +17,7 @@ export class GameEngine {
 
   private isRunning: boolean = false;
   private lastFrameTime: number = 0;
-  private canvas: CanvasRenderingContext2D | null = null;
+  private canvas: any | null = null;
   private frameCount: number = 0; // 帧计数器
 
   // 游戏对象
