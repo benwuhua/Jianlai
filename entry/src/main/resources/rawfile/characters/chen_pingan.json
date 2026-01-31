@@ -6,8 +6,8 @@
   "baseStats": {
     "maxHp": 1200,
     "currentHp": 1200,
-    "attack": 110,
-    "defense": 60,
+    "attack": 100,
+    "defense": 50,
     "speed": 5
   },
   "modeSwitch": {
@@ -20,19 +20,19 @@
       "id": "fierce_tiger",
       "name": "猛虎硬爬山",
       "type": "active",
-      "cooldown": 12000,
-      "kiCost": 15,
-      "damage": 150,
-      "range": 80,
+      "cooldown": 10000,
+      "kiCost": 12,
+      "damage": 140,
+      "range": 100,
       "description": "突进攻击，击飞敌人"
     },
     {
       "id": "sword_ki",
       "name": "剑气斩",
       "type": "active",
-      "cooldown": 10000,
-      "kiCost": 20,
-      "damage": 120,
+      "cooldown": 8000,
+      "kiCost": 15,
+      "damage": 110,
       "range": 200,
       "description": "发射远程剑气"
     },
@@ -40,29 +40,29 @@
       "id": "spring_breeze",
       "name": "春风化雨",
       "type": "active",
-      "cooldown": 15000,
-      "kiCost": 30,
+      "cooldown": 12000,
+      "kiCost": 25,
       "damage": 0,
       "range": 0,
-      "description": "恢复30%生命值"
+      "description": "恢复25%生命值"
     }
   ],
   "ultimate": {
     "id": "great_wall_sword",
     "name": "剑气长城",
     "type": "ultimate",
-    "cooldown": 60000,
+    "cooldown": 45000,
     "kiCost": 100,
-    "damage": 400,
+    "damage": 300,
     "range": 500,
     "description": "全屏剑气轰炸"
   },
   "martialMode": {
     "baseStats": {
-      "maxHp": 1560,
-      "currentHp": 1560,
-      "attack": 143,
-      "defense": 90,
+      "maxHp": 1500,
+      "currentHp": 1500,
+      "attack": 130,
+      "defense": 75,
       "speed": 5
     },
     "skills": [
@@ -70,28 +70,28 @@
         "id": "carry_mountain",
         "name": "搬山",
         "type": "active",
-        "cooldown": 12000,
-        "kiCost": 15,
-        "damage": 200,
-        "range": 60,
+        "cooldown": 10000,
+        "kiCost": 12,
+        "damage": 170,
+        "range": 80,
         "description": "击飞敌人并砸地"
       },
       {
         "id": "overturn_sea",
         "name": "倒海",
         "type": "active",
-        "cooldown": 10000,
-        "kiCost": 20,
-        "damage": 150,
-        "range": 100,
+        "cooldown": 8000,
+        "kiCost": 15,
+        "damage": 130,
+        "range": 120,
         "description": "周围范围攻击"
       },
       {
         "id": "observe_sea",
         "name": "观海",
         "type": "active",
-        "cooldown": 8000,
-        "kiCost": 10,
+        "cooldown": 6000,
+        "kiCost": 8,
         "damage": 0,
         "range": 0,
         "description": "防御姿态，减伤80%"
@@ -101,10 +101,10 @@
       "id": "twelve_stories",
       "name": "十二重楼",
       "type": "ultimate",
-      "cooldown": 60000,
+      "cooldown": 45000,
       "kiCost": 100,
-      "damage": 600,
-      "range": 80,
+      "damage": 450,
+      "range": 100,
       "description": "拳法连击，巨额伤害"
     }
   }

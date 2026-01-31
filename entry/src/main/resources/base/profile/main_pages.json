@@ -1,5 +1,8 @@
 {
   "src": [
+    "pages/MainMenu",
+    "pages/CharacterSelect",
+    "pages/DifficultySelect",
     "pages/Index"
   ]
 }

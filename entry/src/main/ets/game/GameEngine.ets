@@ -4,6 +4,9 @@ import { CharacterRenderer } from '../components/CharacterRenderer';
 import { InputController } from './InputController';
 import { CollisionDetector } from '../utils/CollisionDetector';
 import { BattleSystem } from './BattleSystem';
+import { AIController, AIState } from './AIController';
+import { AIDifficulty } from '../models/AIBehavior';
+import { CharacterManager } from './CharacterManager';
 
 const DOMAIN = 0x0000;
 const TAG = 'GameEngine';
@@ -21,28 +24,75 @@ export class GameEngine {
   private player: Character;
   private enemy: Character;
   private inputController: InputController;
+  private aiController: AIController | null = null;
+  private difficulty: AIDifficulty = 'normal';
   private battleOver: boolean = false;
-  private uiUpdateCallback?: (playerHp: number, playerMaxHp: number, enemyHp: number, enemyMaxHp: number) => void;
+  private winner: Character | null = null;
+  private uiUpdateCallback?: (playerHp: number, playerMaxHp: number, enemyHp: number, enemyMaxHp: number, battleOver: boolean, winnerName: string, isVictory: boolean) => void;
 
-  constructor(canvas: CanvasRenderingContext2D) {
+  constructor(canvas: CanvasRenderingContext2D, difficulty: AIDifficulty = 'normal', playerCharacterId?: string) {
     if (!canvas) {
       throw new Error('Canvas context cannot be null');
     }
     this.canvas = canvas;
+    this.difficulty = difficulty;
 
-    // 创建玩家角色
-    this.player = new Character('player', '陈平安', 200, 500, '#4A90E2');
-
-    // 创建敌人
-    this.enemy = new Character('enemy', '敌人', 600, 500, '#E74C3C');
+    // 创建角色（使用CharacterManager或默认创建）
+    this.player = this.createPlayer(playerCharacterId || 'chen_pingan');
+    this.enemy = this.createEnemy('ning_ya'); // 默认敌人为宁姚
 
     // 创建输入控制器
     this.inputController = new InputController(this.player);
 
+    // 创建AI控制器
+    this.aiController = new AIController(this.enemy, this.player, this.difficulty);
+
     // 初始化战斗状态
     this.battleOver = false;
 
-    hilog.info(DOMAIN, TAG, 'GameEngine initialized successfully');
+    hilog.info(DOMAIN, TAG, 'GameEngine initialized with difficulty: %{public}s, player: %{public}s, enemy: %{public}s',
+      this.difficulty, this.player.name, this.enemy.name);
+  }
+
+  // 创建玩家角色
+  private createPlayer(characterId: string): Character {
+    const manager = CharacterManager.getInstance();
+    const character = manager.createCharacter(characterId);
+
+    if (character) {
+      character.x = 200;
+      return character;
+    }
+
+    // 默认角色
+    const defaultChar = new Character('player', '陈平安', 200, 500, '#4A90E2');
+    return defaultChar;
+  }
+
+  // 创建敌人角色
+  private createEnemy(characterId: string): Character {
+    const manager = CharacterManager.getInstance();
+    const character = manager.createCharacter(characterId);
+
+    if (character) {
+      character.x = 600;
+      character.facing = -1; // 面向左
+      return character;
+    }
+
+    // 默认敌人
+    const defaultChar = new Character('enemy', '敌人', 600, 500, '#E74C3C');
+    defaultChar.facing = -1;
+    return defaultChar;
+  }
+
+  // 设置难度
+  setDifficulty(difficulty: AIDifficulty): void {
+    this.difficulty = difficulty;
+    if (this.aiController) {
+      this.aiController.setDifficulty(difficulty);
+    }
+    hilog.info(DOMAIN, TAG, 'Difficulty set to: %{public}s', difficulty);
   }
 
   // 启动游戏循环
@@ -88,6 +138,11 @@ export class GameEngine {
       return;
     }
 
+    // 更新AI
+    if (this.aiController) {
+      this.aiController.update(deltaTime);
+    }
+
     // 更新角色位置
     this.player.update(deltaTime);
     this.enemy.update(deltaTime);
@@ -126,9 +181,9 @@ export class GameEngine {
     // 检测战斗是否结束
     if (BattleSystem.isBattleOver(this.player, this.enemy)) {
       this.battleOver = true;
-      const winner = BattleSystem.getWinner(this.player, this.enemy);
-      if (winner) {
-        hilog.info(DOMAIN, TAG, 'Battle over! Winner: %{public}s', winner.name);
+      this.winner = BattleSystem.getWinner(this.player, this.enemy);
+      if (this.winner) {
+        hilog.info(DOMAIN, TAG, 'Battle over! Winner: %{public}s', this.winner.name);
       } else {
         hilog.info(DOMAIN, TAG, 'Battle over! Draw!');
       }
@@ -136,11 +191,17 @@ export class GameEngine {
 
     // 更新UI
     if (this.uiUpdateCallback) {
+      const isVictory = this.winner === this.player;
+      const winnerName = this.winner ? this.winner.name : '平局';
+
       this.uiUpdateCallback(
         this.player.stats.currentHp,
         this.player.stats.maxHp,
         this.enemy.stats.currentHp,
-        this.enemy.stats.maxHp
+        this.enemy.stats.maxHp,
+        this.battleOver,
+        winnerName,
+        isVictory
       );
     }
   }
@@ -167,11 +228,29 @@ export class GameEngine {
 
   // 提供输入控制接口
   handleKeyDown(key: string): void {
-    this.inputController.onKeyDown(key);
+    // 技能快捷键: 1, 2, 3 (技能), 4 (必杀), V (模式切换)
+    if (key === '1') {
+      this.player.useSkill(0);
+    } else if (key === '2') {
+      this.player.useSkill(1);
+    } else if (key === '3') {
+      this.player.useSkill(2);
+    } else if (key === '4') {
+      this.player.useUltimate();
+    } else if (key === 'v' || key === 'V') {
+      this.player.switchMode();
+    } else {
+      this.inputController.onKeyDown(key);
+    }
   }
 
   handleKeyUp(key: string): void {
     this.inputController.onKeyUp(key);
+  }
+
+  // 获取玩家角色（用于UI访问）
+  getPlayer(): Character {
+    return this.player;
   }
 
   // 设置UI更新回调

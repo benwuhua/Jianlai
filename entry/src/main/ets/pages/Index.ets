@@ -1,9 +1,12 @@
 import { GameEngine } from '../game/GameEngine';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { KeyType, TouchType } from '@kit.ArkUI';
+import { KeyType, TouchType, router } from '@kit.ArkUI';
 import { HealthBar } from '../components/HealthBar';
 import { SkillButton } from '../components/SkillButton';
+import { SkillButtonBar } from '../components/SkillButtonBar';
 import { CharacterManager } from '../game/CharacterManager';
+import { SkillConfig } from '../models/Skill';
+import { AIDifficulty } from '../models/AIBehavior';
 
 const DOMAIN = 0x0000;
 const TAG = 'Index';
@@ -14,11 +17,31 @@ struct Index {
   @State private canvasContext: CanvasRenderingContext2D | null = null;
   private gameEngine: GameEngine | null = null;
 
+  // 导航参数
+  @State private characterId: string = '';
+  @State private difficulty: string = 'normal';
+  @State private playerName: string = '陈平安';
+
   // 暴露角色状态给UI
   @State playerHp: number = 1000;
   @State playerMaxHp: number = 1000;
   @State enemyHp: number = 1000;
   @State enemyMaxHp: number = 1000;
+
+  // 技能和剑气状态
+  @State playerSkills: SkillConfig[] = [];
+  @State playerUltimate: SkillConfig | null = null;
+  @State skillCooldowns: number[] = [0, 0, 0];
+  @State ultimateCooldown: number = 0;
+  @State currentKi: number = 0;
+  @State maxKi: number = 100;
+  @State canUseSkills: boolean[] = [true, true, true];
+  @State canUseUltimate: boolean = false;
+
+  // 战斗结束状态
+  @State battleOver: boolean = false;
+  @State winner: string = '';
+  @State isVictory: boolean = false;
 
   build() {
     Stack() {
@@ -32,7 +55,16 @@ struct Index {
             try {
               if (this.canvasContext) {
                 hilog.info(DOMAIN, TAG, 'Canvas initialized successfully');
-                this.gameEngine = new GameEngine(this.canvasContext);
+                // 根据难度映射
+                const difficultyMap: Record<string, AIDifficulty> = {
+                  'easy': 'easy',
+                  'normal': 'normal',
+                  'hard': 'hard',
+                  'expert': 'extreme'
+                };
+                const aiDifficulty = difficultyMap[this.difficulty] || 'normal';
+
+                this.gameEngine = new GameEngine(this.canvasContext, aiDifficulty, this.characterId);
                 // 设置回调更新UI
                 this.gameEngine.setUIUpdateCallback(this.updateUIFromGame.bind(this));
                 this.gameEngine.start();
@@ -64,31 +96,106 @@ struct Index {
       .height('100%')
       .backgroundColor('#000000')
 
-      // UI层
-      Column() {
-        // 顶部血条
-        Row() {
-          HealthBar({
-            name: '陈平安',
-            currentHp: this.playerHp,
-            maxHp: this.playerMaxHp,
-            position: 'top'
-          })
+      // 战斗结束界面
+      if (this.battleOver) {
+        Column() {
+          Blank()
+          Text(this.isVictory ? '胜利！' : '失败')
+            .fontSize(60)
+            .fontColor(this.isVictory ? '#FFD700' : '#FF0000')
+            .fontWeight(FontWeight.Bold)
+
+          Text(`${this.winner} 获胜`)
+            .fontSize(30)
+            .fontColor('#FFFFFF')
+            .margin({ top: 20, bottom: 40 })
+
+          Button('返回主菜单')
+            .width(200)
+            .height(50)
+            .fontSize(20)
+            .fontColor('#FFFFFF')
+            .backgroundColor('#4A90E2')
+            .borderRadius(10)
+            .onClick(() => {
+              router.replaceUrl({ url: 'pages/MainMenu' });
+            })
 
           Blank()
+        }
+        .width('100%')
+        .height('100%')
+        .justifyContent(FlexAlign.Center)
+        .backgroundColor('#000000DD')
+      }
 
-          HealthBar({
-            name: '敌人',
-            currentHp: this.enemyHp,
-            maxHp: this.enemyMaxHp,
-            position: 'top'
-          })
+      // UI层
+      Column() {
+        // 顶部返回按钮和血条
+        Column() {
+          // 返回按钮
+          Row() {
+            Button('返回')
+              .fontSize(14)
+              .backgroundColor('#2C3E50')
+              .onClick(() => {
+                router.back();
+              })
+
+            Blank()
+            Blank()
+          }
+          .width('100%')
+          .padding({ left: 10, right: 10, top: 5 })
+
+          // 血条
+          Row() {
+            HealthBar({
+              name: this.playerName,
+              currentHp: this.playerHp,
+              maxHp: this.playerMaxHp,
+              position: 'top'
+            })
+
+            Blank()
+
+            HealthBar({
+              name: '敌人',
+              currentHp: this.enemyHp,
+              maxHp: this.enemyMaxHp,
+              position: 'top'
+            })
+          }
+          .width('100%')
         }
         .width('100%')
 
         Blank()
 
-        // 底部控制按钮
+        // 底部技能按钮栏
+        SkillButtonBar({
+          skills: this.playerSkills,
+          ultimate: this.playerUltimate,
+          cooldowns: this.skillCooldowns,
+          ultimateCooldown: this.ultimateCooldown,
+          currentKi: this.currentKi,
+          maxKi: this.maxKi,
+          canUseSkills: this.canUseSkills,
+          canUseUltimate: this.canUseUltimate,
+          onSkillPress: (index: number) => {
+            if (this.gameEngine) {
+              this.gameEngine.handleKeyDown((index + 1).toString());
+            }
+          },
+          onUltimatePress: () => {
+            if (this.gameEngine) {
+              this.gameEngine.handleKeyDown('4');
+            }
+          }
+        })
+        .margin({ bottom: 20 })
+
+        // 基础控制按钮
         Row() {
           SkillButton({
             label: '攻',
@@ -125,7 +232,7 @@ struct Index {
         }
         .justifyContent(FlexAlign.Center)
         .width('100%')
-        .padding({ bottom: 30 })
+        .padding({ bottom: 20 })
       }
       .width('100%')
       .height('100%')
@@ -136,16 +243,30 @@ struct Index {
   async aboutToAppear() {
     this.canvasContext = new CanvasRenderingContext2D();
 
-    // 测试加载角色数据
+    // 获取导航参数
+    const params = router.getParams() as Record<string, string>;
+    this.characterId = params['characterId'] || 'chen_pingan';
+    this.difficulty = params['difficulty'] || 'normal';
+
+    hilog.info(DOMAIN, TAG, 'Starting battle with character: %{public}s, difficulty: %{public}s',
+      this.characterId, this.difficulty);
+
+    // 加载角色数据
     const manager = CharacterManager.getInstance();
     await manager.loadAllCharacters();
 
-    const characters = manager.getAllCharacters();
-    hilog.info(DOMAIN, TAG, 'Loaded %{public}d characters', characters.length);
+    const characterConfig = manager.getCharacterConfig(this.characterId);
+    if (characterConfig) {
+      this.playerName = characterConfig.name;
+      this.playerSkills = characterConfig.skills || [];
+      this.playerUltimate = characterConfig.ultimate || null;
+      hilog.info(DOMAIN, TAG, 'Player character: %{public}s with %{public}d skills',
+        characterConfig.name, this.playerSkills.length);
+    }
 
-    characters.forEach(char => {
-      hilog.info(DOMAIN, TAG, '- %{public}s (%{public}s)', char.name, char.faction);
-    });
+    // 预加载角色管理器数据，确保GameEngine可以访问
+    hilog.info(DOMAIN, TAG, 'CharacterManager preloaded with %{public}d characters',
+      manager.getAllCharacters().length);
   }
 
   // 清理资源
@@ -156,10 +277,53 @@ struct Index {
   }
 
   // 从游戏引擎更新UI
-  private updateUIFromGame(playerHp: number, playerMaxHp: number, enemyHp: number, enemyMaxHp: number): void {
+  private updateUIFromGame(
+    playerHp: number,
+    playerMaxHp: number,
+    enemyHp: number,
+    enemyMaxHp: number,
+    battleOver: boolean = false,
+    winnerName: string = '',
+    isVictory: boolean = false
+  ): void {
     this.playerHp = playerHp;
     this.playerMaxHp = playerMaxHp;
     this.enemyHp = enemyHp;
     this.enemyMaxHp = enemyMaxHp;
+
+    // 更新战斗结束状态
+    this.battleOver = battleOver;
+    this.winner = winnerName;
+    this.isVictory = isVictory;
+
+    // 更新技能和剑气数据
+    if (this.gameEngine && !battleOver) {
+      const player = this.gameEngine.getPlayer();
+      const skillManager = player.getSkillManager();
+
+      if (skillManager) {
+        // 更新剑气
+        this.currentKi = skillManager.getCurrentKi();
+        this.maxKi = skillManager.getMaxKi();
+
+        // 更新技能冷却
+        this.skillCooldowns = [
+          skillManager.getSkillCooldownRemaining(0),
+          skillManager.getSkillCooldownRemaining(1),
+          skillManager.getSkillCooldownRemaining(2)
+        ];
+
+        this.ultimateCooldown = skillManager.getUltimateCooldownRemaining();
+
+        // 更新技能可用状态
+        this.canUseSkills = [
+          skillManager.canUseSkill(0),
+          skillManager.canUseSkill(1),
+          skillManager.canUseSkill(2)
+        ];
+
+        this.canUseUltimate = skillManager.canUseUltimate();
+      }
+    }
   }
 }

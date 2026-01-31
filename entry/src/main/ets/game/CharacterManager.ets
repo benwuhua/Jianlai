@@ -1,6 +1,8 @@
 import { Character } from '../models/Character';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { resourceManager } from '@kit.LocalizationKit';
+import { SkillManager } from './SkillManager';
+import { ModeManager } from './ModeManager';
 
 const DOMAIN = 0x0000;
 const TAG = 'CharacterManager';
@@ -146,6 +148,29 @@ export class CharacterManager {
 
     // 设置属性
     character.stats = { ...config.baseStats };
+
+    // 创建并设置技能管理器
+    const skillManager = new SkillManager(config.skills || [], config.ultimate || {});
+    character.setSkillManager(skillManager);
+
+    // 如果有双模式，创建并设置模式管理器
+    if (config.modeSwitch && config.modeSwitch.hasAlternateMode && config.martialMode) {
+      const modeManager = new ModeManager(
+        config.skills || [],
+        config.ultimate || {},
+        config.baseStats,
+        config.martialMode.skills || [],
+        config.martialMode.ultimate || {},
+        config.martialMode.baseStats,
+        config.modeSwitch.switchCooldown || 10000
+      );
+      character.setModeManager(modeManager);
+
+      hilog.info(DOMAIN, TAG, 'Character %{public}s has alternate mode', config.name);
+    }
+
+    hilog.info(DOMAIN, TAG, 'Created character: %{public}s with %{public}d skills',
+      config.name, (config.skills || []).length);
 
     return character;
   }

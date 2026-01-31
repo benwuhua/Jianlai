@@ -1,5 +1,10 @@
 import { AudioManager } from '../utils/AudioManager';
 import { Skill, SkillConfig } from './Skill';
+import { SkillManager } from '../game/SkillManager';
+import { ModeManager, CharacterMode } from '../game/ModeManager';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
+const DOMAIN = 0x0000;
 
 // 角色状态枚举
 export enum CharacterState {
@@ -7,7 +12,9 @@ export enum CharacterState {
   WALKING = 'walking',
   ATTACKING = 'attacking',
   HURT = 'hurt',
-  DEAD = 'dead'
+  DEAD = 'dead',
+  CASTING_SKILL = 'casting_skill',
+  MODE_SWITCHING = 'mode_switching'
 }
 
 // 角色属性接口
@@ -55,10 +62,11 @@ export class Character {
   private static readonly HURT_DURATION = 100; // ms
 
   // 技能系统
-  private skills: Skill[] = [];
-  private ultimateSkill: Skill | null = null;
-  private currentKi: number = 0;
-  private readonly maxKi: number = 100;
+  skillManager: SkillManager | null = null;
+
+  // 模式切换系统（用于陈平安等双模式角色）
+  modeManager: ModeManager | null = null;
+  private currentMode: CharacterMode = 'default';
 
   constructor(id: string, name: string, x: number, y: number, color: string) {
     this.id = id;
@@ -85,6 +93,16 @@ export class Character {
     // 使用deltaTime标准化速度（deltaTime单位为毫秒）
     this.x += this.velocityX * deltaTime * 60 / 1000; // 60是基准帧率，1000转换为秒
     this.y += this.velocityY * deltaTime * 60 / 1000;
+
+    // 更新技能管理器
+    if (this.skillManager) {
+      this.skillManager.update(deltaTime);
+    }
+
+    // 更新模式管理器
+    if (this.modeManager) {
+      this.modeManager.update(deltaTime);
+    }
 
     // 更新攻击冷却
     if (this.attackCooldown > 0) {
@@ -195,40 +213,117 @@ export class Character {
     return this.attackDuration > Character.DAMAGE_WINDOW_START;
   }
 
-  // 设置技能
-  setSkills(skillConfigs: SkillConfig[]): void {
-    this.skills = skillConfigs.map(config => new Skill(config));
+  // 设置技能管理器
+  setSkillManager(skillManager: SkillManager): void {
+    this.skillManager = skillManager;
   }
 
-  // 设置必杀技
-  setUltimate(skillConfig: SkillConfig): void {
-    this.ultimateSkill = new Skill(skillConfig);
+  // 获取技能管理器
+  getSkillManager(): SkillManager | null {
+    return this.skillManager;
   }
 
-  // 获取技能列表
-  getSkills(): Skill[] {
-    return this.skills;
+  // 使用技能
+  useSkill(index: number): boolean {
+    if (!this.skillManager) {
+      return false;
+    }
+
+    if (this.skillManager.useSkill(index)) {
+      this.state = CharacterState.CASTING_SKILL;
+      // 攻击和受击会积攒剑气
+      // 技能释放不积攒剑气
+      return true;
+    }
+
+    return false;
   }
 
-  // 获取必杀技
-  getUltimate(): Skill | null {
-    return this.ultimateSkill;
+  // 使用必杀技
+  useUltimate(): boolean {
+    if (!this.skillManager) {
+      return false;
+    }
+
+    if (this.skillManager.useUltimate()) {
+      this.state = CharacterState.CASTING_SKILL;
+      return true;
+    }
+
+    return false;
   }
 
   // 剑气管理
   addKi(amount: number): void {
-    this.currentKi = Math.min(this.maxKi, this.currentKi + amount);
-  }
-
-  consumeKi(amount: number): boolean {
-    if (this.currentKi >= amount) {
-      this.currentKi -= amount;
-      return true;
+    if (this.skillManager) {
+      this.skillManager.addKi(amount);
     }
-    return false;
   }
 
   getKiPercent(): number {
-    return this.currentKi / this.maxKi;
+    return this.skillManager ? this.skillManager.getKiPercent() : 0;
+  }
+
+  getCurrentKi(): number {
+    return this.skillManager ? this.skillManager.getCurrentKi() : 0;
+  }
+
+  getMaxKi(): number {
+    return this.skillManager ? this.skillManager.getMaxKi() : 100;
+  }
+
+  // 模式切换相关方法
+  setModeManager(modeManager: ModeManager): void {
+    this.modeManager = modeManager;
+  }
+
+  getModeManager(): ModeManager | null {
+    return this.modeManager;
+  }
+
+  // 切换模式
+  switchMode(): boolean {
+    if (!this.modeManager || !this.modeManager.canSwitch()) {
+      return false;
+    }
+
+    this.state = CharacterState.MODE_SWITCHING;
+    const newMode = this.modeManager.switchMode();
+    this.currentMode = newMode;
+
+    // 获取新模式的配置
+    const modeConfig = this.modeManager.getCurrentModeConfig();
+
+    // 更新属性
+    const hpPercent = this.stats.currentHp / this.stats.maxHp;
+    this.stats.maxHp = modeConfig.stats.maxHp;
+    this.stats.currentHp = Math.min(this.stats.maxHp, modeConfig.stats.maxHp * hpPercent);
+    this.stats.attack = modeConfig.stats.attack;
+    this.stats.defense = modeConfig.stats.defense;
+    this.stats.speed = modeConfig.stats.speed;
+
+    // 更新技能
+    if (this.skillManager) {
+      this.skillManager.replaceSkills(modeConfig.skills, modeConfig.ultimate);
+    }
+
+    // 模式切换动画延迟后恢复
+    setTimeout(() => {
+      this.state = CharacterState.IDLE;
+    }, 2000);
+
+    hilog.info(DOMAIN, 'Character', 'Switched to %{public}s mode', newMode);
+
+    return true;
+  }
+
+  // 获取当前模式
+  getCurrentMode(): CharacterMode {
+    return this.currentMode;
+  }
+
+  // 检查是否有备用模式
+  hasAlternateMode(): boolean {
+    return this.modeManager !== null;
   }
 }
