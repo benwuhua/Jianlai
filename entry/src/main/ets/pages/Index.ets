@@ -1,7 +1,6 @@
 import { GameEngine } from '../game/GameEngine';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { KeyType, TouchType, router } from '@kit.ArkUI';
-import { CanvasRenderingContext2D } from '@kit.ArkGraphics2D';
+import { router } from '@kit.ArkUI';
 import { HealthBar } from '../components/HealthBar';
 import { SkillButton } from '../components/SkillButton';
 import { SkillButtonBar } from '../components/SkillButtonBar';
@@ -80,15 +79,15 @@ struct Index {
             top: { anchor: '__container__', align: VerticalAlign.Top },
             bottom: { anchor: '__container__', align: VerticalAlign.Bottom },
             left: { anchor: '__container__', align: HorizontalAlign.Start },
-            right: { anchor: '__container__', align: HorizontalAlign.END }
+            right: { anchor: '__container__', align: HorizontalAlign.End }
           })
           .onKeyEvent((event) => {
             // 处理键盘事件
             if (this.gameEngine) {
-              if (event.type === KeyType.Down) {
-                this.gameEngine.handleKeyDown(event.keyCode);
-              } else if (event.type === KeyType.Up) {
-                this.gameEngine.handleKeyUp(event.keyCode);
+              if (event.type === 2) { // KeyType.Down = 2
+                this.gameEngine.handleKeyDown(event.keyCode.toString());
+              } else if (event.type === 3) { // KeyType.Up = 3
+                this.gameEngine.handleKeyUp(event.keyCode.toString());
               }
             }
           })
@@ -208,7 +207,7 @@ struct Index {
           })
           .onTouch((event: TouchEvent) => {
             if (this.gameEngine) {
-              if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
+              if (event.type === 3 || event.type === 4) { // TouchType.Up = 3, Cancel = 4
                 this.gameEngine.handleKeyUp('j');
               }
             }
@@ -225,7 +224,7 @@ struct Index {
           })
           .onTouch((event: TouchEvent) => {
             if (this.gameEngine) {
-              if (event.type === TouchType.Up || event.type === TouchType.Cancel) {
+              if (event.type === 3 || event.type === 4) { // TouchType.Up = 3, Cancel = 4
                 this.gameEngine.handleKeyUp('w');
               }
             }

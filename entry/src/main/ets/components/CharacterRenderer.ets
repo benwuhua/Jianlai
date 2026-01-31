@@ -1,5 +1,4 @@
 import { Character, CharacterState } from '../models/Character';
-import { CanvasRenderingContext2D } from '@kit.ArkGraphics2D';
 
 export class CharacterRenderer {
   // 渲染角色
