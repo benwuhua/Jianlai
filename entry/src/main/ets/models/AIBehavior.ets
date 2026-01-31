@@ -22,7 +22,7 @@ export const DEFAULT_AI_BEHAVIOR: Record<AIDifficulty, AIBehavior> = {
     attackInterval: 4000,
     canCombo: false,
     canPredict: false
-  },
+  } as AIBehavior,
   normal: {
     difficulty: 'normal',
     reactionTime: 500,
@@ -31,7 +31,7 @@ export const DEFAULT_AI_BEHAVIOR: Record<AIDifficulty, AIBehavior> = {
     attackInterval: 2500,
     canCombo: false,
     canPredict: false
-  },
+  } as AIBehavior,
   hard: {
     difficulty: 'hard',
     reactionTime: 200,
@@ -40,7 +40,7 @@ export const DEFAULT_AI_BEHAVIOR: Record<AIDifficulty, AIBehavior> = {
     attackInterval: 1500,
     canCombo: true,
     canPredict: true
-  },
+  } as AIBehavior,
   extreme: {
     difficulty: 'extreme',
     reactionTime: 100,
@@ -49,5 +49,5 @@ export const DEFAULT_AI_BEHAVIOR: Record<AIDifficulty, AIBehavior> = {
     attackInterval: 800,
     canCombo: true,
     canPredict: true
-  }
+  } as AIBehavior
 };

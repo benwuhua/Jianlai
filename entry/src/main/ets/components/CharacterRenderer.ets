@@ -1,8 +1,25 @@
 import { Character, CharacterState } from '../models/Character';
 
+// Canvas 2D 上下文类型
+interface Canvas2DContext {
+  fillStyle: string | CanvasGradient | CanvasPattern;
+  font: string;
+  fillText: string, x: number, y: number, maxWidth?: number): void;
+  fillRect(x: number, y: number, width: number, height: number): void;
+  strokeStyle: string | CanvasGradient | CanvasPattern;
+  lineWidth: number;
+  strokeRect(x: number, y: number, width: number, height: number): void;
+  beginPath(): void;
+  closePath(): void;
+  arc(x: number, y: number, radius: number, startAngle: number, endAngle: number): void;
+  save(): void;
+  restore(): void;
+  clearRect(x: number, y: number, width: number, height: number): void;
+}
+
 export class CharacterRenderer {
   // 渲染角色
-  static render(ctx: any, character: Character): void {
+  static render(ctx: Canvas2DContext, character: Character): void {
     ctx.save();
 
     // 绘制技能特效（在角色后面）
@@ -53,7 +70,7 @@ export class CharacterRenderer {
   }
 
   // 绘制技能特效
-  private static renderSkillEffect(ctx: any, character: Character): void {
+  private static renderSkillEffect(ctx: Canvas2DContext, character: Character): void {
     if (character.state === CharacterState.CASTING_SKILL) {
       const skillManager = character.getSkillManager();
       if (skillManager && skillManager.getCurrentKi() >= 90) {
@@ -96,7 +113,7 @@ export class CharacterRenderer {
   }
 
   // 绘制攻击特效
-  private static renderAttackEffect(ctx: any, character: Character): void {
+  private static renderAttackEffect(ctx: Canvas2DContext, character: Character): void {
     if (character.isAttacking()) {
       const attackRange = 120;
       const direction = character.facing;
@@ -118,7 +135,7 @@ export class CharacterRenderer {
   }
 
   // 绘制模式标签
-  private static renderModeLabel(ctx: any, character: Character): void {
+  private static renderModeLabel(ctx: Canvas2DContext, character: Character): void {
     if (character.hasAlternateMode()) {
       const mode = character.getCurrentMode();
       const modeText = mode === 'alternate' ? '武夫' : '剑修';
@@ -131,7 +148,7 @@ export class CharacterRenderer {
   }
 
   // 绘制血条
-  private static renderHealthBar(ctx: any, character: Character): void {
+  private static renderHealthBar(ctx: Canvas2DContext, character: Character): void {
     const hpBarWidth = 80;
     const hpBarHeight = 8;
     const hpPercent = character.stats.currentHp / character.stats.maxHp;
@@ -157,7 +174,7 @@ export class CharacterRenderer {
   }
 
   // 绘制剑气槽
-  private static renderKiBar(ctx: any, character: Character): void {
+  private static renderKiBar(ctx: Canvas2DContext, character: Character): void {
     const kiBarWidth = 60;
     const kiBarHeight = 5;
     const kiPercent = character.getKiPercent();

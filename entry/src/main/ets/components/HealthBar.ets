@@ -33,6 +33,6 @@ export struct HealthBar {
     }
     .width('100%')
     .padding({ left: 20, right: 20, top: 10, bottom: 10 })
-    .alignItems(this.position === 'top' ? HorizontalAlign.Start : HorizontalAlign.END)
+    .alignItems(this.position === 'top' ? HorizontalAlign.Start : HorizontalAlign.End)
   }
 }

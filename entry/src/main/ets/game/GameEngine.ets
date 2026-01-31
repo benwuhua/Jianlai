@@ -127,8 +127,8 @@ export class GameEngine {
     // 渲染画面
     this.render();
 
-    // 请求下一帧
-    requestAnimationFrame(() => this.gameLoop());
+    // 使用 setTimeout 请求下一帧（约60FPS）
+    setTimeout(() => this.gameLoop(), 16);
   }
 
   // 更新游戏逻辑（每帧调用）

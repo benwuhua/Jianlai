@@ -30,10 +30,8 @@ export struct SkillButton {
             .width(this.isUltimate ? 80 : 60)
             .height(this.isUltimate ? 80 : 60)
             .fill('#000000AA')
-            .stroke({
-              width: this.isUltimate ? 3 : 2,
-              color: this.isUltimate ? '#FFD700' : '#FFFFFF'
-            })
+            .stroke(this.isUltimate ? '#FFD700' : '#FFFFFF')
+            .strokeWidth(this.isUltimate ? 3 : 2)
         }
 
         // 技能图标/标签

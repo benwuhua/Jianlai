@@ -68,8 +68,7 @@ export class CharacterManager {
 
       for (const fileName of characterFiles) {
         try {
-          const fileData = await resourceManager.getRawFileDescriptor(`characters/${fileName}`);
-          const content = await fileData.readText();
+          const content = await resourceManager.getRawFileContent(`characters/${fileName}`);
           const charData: CharacterData = JSON.parse(content);
 
           this.characterConfigs.set(charData.id, charData);
@@ -103,7 +102,15 @@ export class CharacterManager {
         color: '#4A90E2',
         baseStats: { maxHp: 1200, currentHp: 1200, attack: 110, defense: 60, speed: 5 },
         skills: [],
-        ultimate: {}
+        ultimate: {
+          id: '',
+          name: '',
+          type: 'active',
+          cooldown: 0,
+          kiCost: 0,
+          damage: 0,
+          range: 0
+        }
       },
       {
         id: 'ning_ya',
@@ -112,7 +119,15 @@ export class CharacterManager {
         color: '#E74C3C',
         baseStats: { maxHp: 1000, currentHp: 1000, attack: 130, defense: 50, speed: 7 },
         skills: [],
-        ultimate: {}
+        ultimate: {
+          id: '',
+          name: '',
+          type: 'active',
+          cooldown: 0,
+          kiCost: 0,
+          damage: 0,
+          range: 0
+        }
       }
     ];
 
@@ -165,11 +180,27 @@ export class CharacterManager {
     if (config.modeSwitch && config.modeSwitch.hasAlternateMode && config.martialMode) {
       const modeManager = new ModeManager(
         config.skills || [],
-        config.ultimate || {},
+        config.ultimate || {
+          id: '',
+          name: '',
+          type: 'active',
+          cooldown: 0,
+          kiCost: 0,
+          damage: 0,
+          range: 0
+        },
         config.baseStats,
         config.martialMode.skills || [],
-        config.martialMode.ultimate || {},
-        config.martialMode.baseStats,
+        config.martialMode.ultimate || {
+          id: '',
+          name: '',
+          type: 'active',
+          cooldown: 0,
+          kiCost: 0,
+          damage: 0,
+          range: 0
+        },
+        config.martialMode.baseStats || config.baseStats,
         config.modeSwitch.switchCooldown || 10000
       );
       character.setModeManager(modeManager);
