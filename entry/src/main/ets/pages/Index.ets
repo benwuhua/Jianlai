@@ -280,9 +280,6 @@ struct Index {
     const manager = CharacterManager.getInstance();
     await manager.loadAllCharacters();
 
-    // 预加载角色贴图
-    await manager.preloadAllTextures();
-
     const characterConfig = manager.getCharacterConfig(this.characterId);
     if (characterConfig) {
       this.playerName = characterConfig.name;
