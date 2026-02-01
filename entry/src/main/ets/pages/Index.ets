@@ -7,6 +7,7 @@ import { SkillButtonBar } from '../components/SkillButtonBar';
 import { CharacterManager } from '../game/CharacterManager';
 import { SkillConfig } from '../models/Skill';
 import { AIDifficulty } from '../models/AIBehavior';
+import { PauseMenu } from '../components/PauseMenu';
 
 const DOMAIN = 0x0000;
 const TAG = 'Index';
@@ -45,6 +46,9 @@ struct Index {
   @State battleOver: boolean = false;
   @State winner: string = '';
   @State isVictory: boolean = false;
+
+  // 暂停状态
+  @State isPaused: boolean = false;
 
   build() {
     Stack() {
@@ -93,9 +97,19 @@ struct Index {
             // 处理键盘事件
             if (this.gameEngine) {
               if (event.type === 2) { // KeyType.Down = 2
-                this.gameEngine.handleKeyDown(event.keyCode.toString());
+                const keyCode = event.keyCode.toString();
+
+                // 暂停键（P键或ESC键）
+                if (keyCode === '27' || keyCode === '80' || keyCode === 'p') { // ESC=27, P=80
+                  this.togglePause();
+                } else if (!this.isPaused && !this.battleOver) {
+                  // 暂停状态下不处理其他按键
+                  this.gameEngine.handleKeyDown(keyCode);
+                }
               } else if (event.type === 3) { // KeyType.Up = 3
-                this.gameEngine.handleKeyUp(event.keyCode.toString());
+                if (!this.isPaused && !this.battleOver) {
+                  this.gameEngine.handleKeyUp(event.keyCode.toString());
+                }
               }
             }
           })
@@ -245,6 +259,36 @@ struct Index {
       .width('100%')
       .height('100%')
     }
+
+    // 暂停菜单
+    PauseMenu({
+      isVisible: this.isPaused,
+      onResume: () => {
+        this.togglePause();
+      },
+      onRestart: () => {
+        this.restartGame();
+      },
+      onQuit: () => {
+        router.replaceUrl({ url: 'pages/MainMenu' });
+      }
+    })
+  }
+
+  // 切换暂停状态
+  private togglePause(): void {
+    if (this.gameEngine) {
+      this.isPaused = this.gameEngine.togglePause();
+    }
+  }
+
+  // 重新开始游戏
+  private restartGame(): void {
+    // 重新加载页面
+    router.replaceUrl({ url: 'pages/Index', params: {
+      characterId: this.characterId,
+      difficulty: this.difficulty
+    }});
   }
 
   // 初始化Canvas上下文

@@ -19,6 +19,7 @@ export class GameEngine {
   private static readonly LOG_FRAME_INTERVAL = 60; // 每60帧打印一次日志
 
   private isRunning: boolean = false;
+  private isPaused: boolean = false; // 暂停状态
   private lastFrameTime: number = 0;
   private canvas: GameCanvas | null = null;
   private frameCount: number = 0; // 帧计数器
@@ -160,6 +161,10 @@ export class GameEngine {
 
   // 更新游戏逻辑（每帧调用）
   private update(deltaTime: number): void {
+    // 如果暂停中，跳过更新
+    if (this.isPaused) {
+      return;
+    }
     // 如果战斗结束，停止更新
     if (this.battleOver) {
       return;
@@ -417,3 +422,15 @@ export class GameEngine {
     return this.enemyCombo;
   }
 }
+
+  // 切换暂停状态
+  togglePause(): boolean {
+    this.isPaused = !this.isPaused;
+    hilog.info(DOMAIN, TAG, 'Game paused: %{public}s', this.isPaused ? 'true' : 'false');
+    return this.isPaused;
+  }
+
+  // 获取暂停状态
+  isPaused(): boolean {
+    return this.isPaused;
+  }
