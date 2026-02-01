@@ -8,6 +8,7 @@ import { CharacterManager } from '../game/CharacterManager';
 import { SkillConfig } from '../models/Skill';
 import { AIDifficulty } from '../models/AIBehavior';
 import { PauseMenu } from '../components/PauseMenu';
+import { KOScreen } from '../components/KOScreen';
 
 const DOMAIN = 0x0000;
 const TAG = 'Index';
@@ -118,38 +119,18 @@ struct Index {
       .height('100%')
       .backgroundColor('#000000')
 
-      // 战斗结束界面
-      if (this.battleOver) {
-        Column() {
-          Blank()
-          Text(this.isVictory ? '胜利！' : '失败')
-            .fontSize(60)
-            .fontColor(this.isVictory ? '#FFD700' : '#FF0000')
-            .fontWeight(FontWeight.Bold)
-
-          Text(`${this.winner} 获胜`)
-            .fontSize(30)
-            .fontColor('#FFFFFF')
-            .margin({ top: 20, bottom: 40 })
-
-          Button('返回主菜单')
-            .width(200)
-            .height(50)
-            .fontSize(20)
-            .fontColor('#FFFFFF')
-            .backgroundColor('#4A90E2')
-            .borderRadius(10)
-            .onClick(() => {
-              router.replaceUrl({ url: 'pages/MainMenu' });
-            })
-
-          Blank()
+      // KO/战斗结束界面
+      KOScreen({
+        isVisible: this.battleOver,
+        winner: this.winner,
+        isVictory: this.isVictory,
+        onRestart: () => {
+          this.restartGame();
+        },
+        onQuit: () => {
+          router.replaceUrl({ url: 'pages/MainMenu' });
         }
-        .width('100%')
-        .height('100%')
-        .justifyContent(FlexAlign.Center)
-        .backgroundColor('#000000DD')
-      }
+      })
 
       // UI层
       Column() {
