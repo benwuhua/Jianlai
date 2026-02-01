@@ -133,7 +133,7 @@ export class SkillManager {
   }
 
   // 检查技能是否可用
-  canUseSkill(index: number): boolean {
+  canUseSkill(index: number): boolean | undefined {
     if (index < 0 || index >= this.skills.length) {
       return false;
     }
@@ -143,7 +143,7 @@ export class SkillManager {
   }
 
   // 检查必杀技是否可用
-  canUseUltimate(): boolean {
+  canUseUltimate(): boolean | undefined {
     if (!this.ultimate) {
       return false;
     }

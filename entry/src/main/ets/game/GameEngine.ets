@@ -31,14 +31,38 @@ export class GameEngine {
   private difficulty: AIDifficulty = 'normal';
   private battleOver: boolean = false;
   private winner: Character | null = null;
-  private uiUpdateCallback?: (playerHp: number, playerMaxHp: number, enemyHp: number, enemyMaxHp: number, battleOver: boolean, winnerName: string, isVictory: boolean) => void;
+  private uiUpdateCallback?: (playerHp: number, playerMaxHp: number, enemyHp: number, enemyMaxHp: number, battleOver: boolean, winnerName: string, isVictory: boolean, playerCombo: number, enemyCombo: number) => void;
 
-  constructor(canvas: CanvasRenderingContext2D, difficulty: AIDifficulty = 'normal', playerCharacterId?: string) {
+  // 屏幕尺寸（HarmonyOS CanvasRenderingContext2D 没有 width/height）
+  private screenWidth: number = 360;  // 默认宽度
+  private screenHeight: number = 640; // 默认高度
+
+  // 连击系统
+  private playerCombo: number = 0;
+  private enemyCombo: number = 0;
+  private comboTimer: number = 0;
+  private static readonly COMBO_TIMEOUT = 2000; // 2秒内无攻击则连击归零
+
+  // 战斗特效
+  private screenShake: number = 0;
+  private hitStop: number = 0;
+
+  // 倒计时系统
+  private battleTimer: number = 99; // 99秒倒计时
+  private lastTimerUpdate: number = 0;
+  private static readonly BATTLE_DURATION = 99; // 战斗时长（秒）
+  private static readonly TIMER_UPDATE_INTERVAL = 1000; // 1秒更新一次
+
+  constructor(canvas: CanvasRenderingContext2D, difficulty: AIDifficulty = 'normal', playerCharacterId?: string, screenWidth?: number, screenHeight?: number) {
     if (!canvas) {
       throw new Error('Canvas context cannot be null');
     }
     this.canvas = canvas;
     this.difficulty = difficulty;
+
+    // 设置屏幕尺寸（如果提供）
+    if (screenWidth) this.screenWidth = screenWidth;
+    if (screenHeight) this.screenHeight = screenHeight;
 
     // 创建角色（使用CharacterManager或默认创建）
     this.player = this.createPlayer(playerCharacterId || 'chen_pingan');
@@ -150,11 +174,9 @@ export class GameEngine {
     this.player.update(deltaTime);
     this.enemy.update(deltaTime);
 
-    // 屏幕边界碰撞
-    if (this.canvas) {
-      CollisionDetector.clampToScreen(this.player, this.canvas.width, this.canvas.height);
-      CollisionDetector.clampToScreen(this.enemy, this.canvas.width, this.canvas.height);
-    }
+    // 屏幕边界碰撞（使用 screenWidth/screenHeight）
+    CollisionDetector.clampToScreen(this.player, this.screenWidth, this.screenHeight);
+    CollisionDetector.clampToScreen(this.enemy, this.screenWidth, this.screenHeight);
 
     // 检测角色间碰撞
     if (CollisionDetector.checkAABB(this.player, this.enemy)) {
@@ -170,16 +192,69 @@ export class GameEngine {
         this.enemy.x -= overlap / 2;
       }
 
-      // 碰撞响应后再次检查边界约束，防止角色被推到屏幕外
-      if (this.canvas) {
-        CollisionDetector.clampToScreen(this.player, this.canvas.width, this.canvas.height);
-        CollisionDetector.clampToScreen(this.enemy, this.canvas.width, this.canvas.height);
-      }
+      // 碰撞响应后再次检查边界约束
+      CollisionDetector.clampToScreen(this.player, this.screenWidth, this.screenHeight);
+      CollisionDetector.clampToScreen(this.enemy, this.screenWidth, this.screenHeight);
     }
 
     // 处理攻击判定
     BattleSystem.handleAttack(this.player, this.enemy);
-    BattleSystem.handleAttack(this.enemy, this.player);
+    const playerHitEnemy = BattleSystem.handleAttack(this.player, this.enemy);
+    const enemyHitPlayer = BattleSystem.handleAttack(this.enemy, this.player);
+
+    // 更新连击计数
+    if (playerHitEnemy) {
+      this.playerCombo++;
+      this.enemyCombo = 0; // 敌人被击中，重置敌人连击
+      this.comboTimer = GameEngine.COMBO_TIMEOUT;
+      this.screenShake = 5; // 屏幕震动
+      this.hitStop = 50; // 顿帧效果
+    }
+    if (enemyHitPlayer) {
+      this.enemyCombo++;
+      this.playerCombo = 0; // 玩家被击中，重置玩家连击
+      this.comboTimer = GameEngine.COMBO_TIMEOUT;
+      this.screenShake = 5;
+      this.hitStop = 50;
+    }
+
+    // 连击计时器
+    this.comboTimer -= deltaTime;
+    if (this.comboTimer <= 0) {
+      this.playerCombo = 0;
+      this.enemyCombo = 0;
+    }
+
+    // 更新特效
+    if (this.screenShake > 0) {
+      this.screenShake -= deltaTime / 10;
+    }
+    if (this.hitStop > 0) {
+      this.hitStop -= deltaTime;
+    }
+
+    // 更新倒计时（每1000ms更新一次）
+    this.lastTimerUpdate += deltaTime;
+    if (this.lastTimerUpdate >= GameEngine.TIMER_UPDATE_INTERVAL && !this.battleOver) {
+      this.battleTimer -= Math.floor(this.lastTimerUpdate / 1000);
+      this.lastTimerUpdate = this.lastTimerUpdate % 1000;
+      
+      // 时间到则停止战斗
+      if (this.battleTimer <= 0) {
+        this.battleTimer = 0;
+        // 时间到根据血量判断胜负
+        if (this.player.stats.currentHp > this.enemy.stats.currentHp) {
+          this.winner = this.player;
+          this.battleOver = true;
+        } else if (this.enemy.stats.currentHp > this.player.stats.currentHp) {
+          this.winner = this.enemy;
+          this.battleOver = true;
+        } else {
+          this.battleOver = true; // 平局
+        }
+        hilog.info(DOMAIN, TAG, 'Time up! Battle over. Winner: %{public}s', this.winner?.name || 'Draw');
+      }
+    }
 
     // 检测战斗是否结束
     if (BattleSystem.isBattleOver(this.player, this.enemy)) {
@@ -197,15 +272,20 @@ export class GameEngine {
       const isVictory = this.winner === this.player;
       const winnerName = this.winner ? this.winner.name : '平局';
 
-      this.uiUpdateCallback(
-        this.player.stats.currentHp,
-        this.player.stats.maxHp,
-        this.enemy.stats.currentHp,
-        this.enemy.stats.maxHp,
-        this.battleOver,
-        winnerName,
-        isVictory
-      );
+      // 如果有顿帧效果，跳过几帧不更新UI
+      if (this.hitStop <= 0) {
+        this.uiUpdateCallback(
+          this.player.stats.currentHp,
+          this.player.stats.maxHp,
+          this.enemy.stats.currentHp,
+          this.enemy.stats.maxHp,
+          this.battleOver,
+          winnerName,
+          isVictory,
+          this.playerCombo,
+          this.enemyCombo
+        );
+      }
     }
   }
 
@@ -213,20 +293,61 @@ export class GameEngine {
   private render(): void {
     if (!this.canvas) return;
 
+    // 使用屏幕尺寸渲染
+    const width = this.screenWidth;
+    const height = this.screenHeight;
+
     // 清空画布
-    this.canvas.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.canvas.clearRect(0, 0, width, height);
+
+    // 应用屏幕震动
+    this.canvas.save();
+    if (this.screenShake > 0) {
+      const shakeX = (Math.random() - 0.5) * this.screenShake * 2;
+      const shakeY = (Math.random() - 0.5) * this.screenShake * 2;
+      this.canvas.translate(shakeX, shakeY);
+    }
 
     // 绘制背景（简单的地面）
     this.canvas.fillStyle = '#2C3E50';
-    this.canvas.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.canvas.fillRect(0, 0, width, height);
 
     // 绘制地面
     this.canvas.fillStyle = '#34495E';
-    this.canvas.fillRect(0, 500, this.canvas.width, this.canvas.height - 500);
+    this.canvas.fillRect(0, 500, width, height - 500);
 
     // 渲染角色
     CharacterRenderer.render(this.canvas, this.player);
     CharacterRenderer.render(this.canvas, this.enemy);
+
+    // 渲染连击数
+    this.renderCombo(this.canvas);
+
+    // 恢复画布（取消震动偏移）
+    this.canvas.restore();
+  }
+
+  // 渲染连击数
+  private renderCombo(ctx: CanvasRenderingContext2D): void {
+    // 玩家连击（左上角）
+    if (this.playerCombo > 1) {
+      ctx.save();
+      ctx.fillStyle = '#FFD700';
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText(`${this.playerCombo} HIT!`, 20, 100);
+      ctx.restore();
+    }
+
+    // 敌人连击（右上角）
+    if (this.enemyCombo > 1) {
+      ctx.save();
+      ctx.fillStyle = '#FF4444';
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'right';
+      ctx.fillText(`${this.enemyCombo} HIT!`, this.screenWidth - 20, 100);
+      ctx.restore();
+    }
   }
 
   // 提供输入控制接口
@@ -257,7 +378,42 @@ export class GameEngine {
   }
 
   // 设置UI更新回调
-  setUIUpdateCallback(callback: (playerHp: number, playerMaxHp: number, enemyHp: number, enemyMaxHp: number) => void): void {
+  setUIUpdateCallback(callback: (playerHp: number, playerMaxHp: number, enemyHp: number, enemyMaxHp: number, battleOver: boolean, winnerName: string, isVictory: boolean, playerCombo: number, enemyCombo: number) => void): void {
     this.uiUpdateCallback = callback;
+  }
+
+  // 获取倒计时（用于UI）
+  getBattleTime(): number {
+    return this.battleTimer;
+  }
+
+  // 获取敌人角色
+  getEnemy(): Character {
+    return this.enemy;
+  }
+
+  // 获取战斗是否结束
+  isBattleOver(): boolean {
+    return this.battleOver;
+  }
+
+  // 获取是否胜利
+  isVictory(): boolean {
+    return this.winner === this.player;
+  }
+
+  // 获取胜利者名称
+  getWinnerName(): string {
+    return this.winner ? this.winner.name : '';
+  }
+
+  // 获取玩家连击数
+  getPlayerCombo(): number {
+    return this.playerCombo;
+  }
+
+  // 获取敌人连击数
+  getEnemyCombo(): number {
+    return this.enemyCombo;
   }
 }

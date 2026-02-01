@@ -62,6 +62,10 @@ export class Character {
   private hurtDuration: number = 0;
   private static readonly HURT_DURATION = 100; // ms
 
+  // 格挡系统
+  private isBlocking: boolean = false;
+  private static readonly BLOCK_DEFENSE_BONUS = 30; // 格挡时额外防御
+
   // 技能系统
   skillManager: SkillManager | null = null;
 
@@ -91,9 +95,9 @@ export class Character {
 
   // 更新位置
   update(deltaTime: number): void {
-    // 使用deltaTime标准化速度（deltaTime单位为毫秒）
-    this.x += this.velocityX * deltaTime * 60 / 1000; // 60是基准帧率，1000转换为秒
-    this.y += this.velocityY * deltaTime * 60 / 1000;
+    // deltaTime 单位为毫秒，直接使用
+    this.x += this.velocityX * deltaTime / 16; // 约60fps归一化
+    this.y += this.velocityY * deltaTime / 16;
 
     // 更新技能管理器
     if (this.skillManager) {
@@ -105,14 +109,14 @@ export class Character {
       this.modeManager.update(deltaTime);
     }
 
-    // 更新攻击冷却
+    // 更新攻击冷却（毫秒）
     if (this.attackCooldown > 0) {
-      this.attackCooldown -= deltaTime * 1000;
+      this.attackCooldown -= deltaTime;
     }
 
     // 更新攻击持续时间
     if (this.attackDuration > 0) {
-      this.attackDuration -= deltaTime * 1000;
+      this.attackDuration -= deltaTime;
       if (this.attackDuration <= 0) {
         this.state = CharacterState.IDLE;
         this.attackDuration = 0;
@@ -121,7 +125,7 @@ export class Character {
 
     // 更新受击硬直状态
     if (this.hurtDuration > 0) {
-      this.hurtDuration -= deltaTime * 1000;
+      this.hurtDuration -= deltaTime;
       if (this.hurtDuration <= 0) {
         if (this.stats.currentHp > 0) {
           this.state = CharacterState.IDLE;
@@ -191,12 +195,49 @@ export class Character {
       return;
     }
 
+    // 格挡判定
+    if (this.isBlocking) {
+      // 格挡成功，减少伤害
+      const blockedDamage = Math.max(1, damage - (this.stats.defense + Character.BLOCK_DEFENSE_BONUS));
+      this.stats.currentHp = Math.max(0, this.stats.currentHp - blockedDamage);
+      
+      // 格挡硬直（比受击硬直短）
+      this.state = CharacterState.HURT;
+      this.hurtDuration = Character.HURT_DURATION / 2;
+      
+      hilog.info(DOMAIN, TAG, '%{public}s blocked! Damage reduced to %{public}d', this.name, blockedDamage);
+      return;
+    }
+
     const actualDamage = damage - this.stats.defense;
     if (actualDamage > 0) {
       this.stats.currentHp = Math.max(0, this.stats.currentHp - actualDamage);
       this.state = CharacterState.HURT;
       this.hurtDuration = Character.HURT_DURATION;
     }
+  }
+
+  // 开始格挡
+  startBlock(): void {
+    if (this.state === CharacterState.IDLE || this.state === CharacterState.WALKING) {
+      this.isBlocking = true;
+      this.state = CharacterState.IDLE;
+    }
+  }
+
+  // 停止格挡
+  stopBlock(): void {
+    this.isBlocking = false;
+  }
+
+  // 设置格挡状态
+  setBlocking(blocking: boolean): void {
+    this.isBlocking = blocking;
+  }
+
+  // 检查是否正在格挡
+  isBlockingActive(): boolean {
+    return this.isBlocking;
   }
 
   // 检查是否死亡

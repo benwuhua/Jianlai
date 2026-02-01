@@ -36,8 +36,9 @@ export class Skill {
 
   // 更新冷却
   update(deltaTime: number): void {
+    // deltaTime 单位为毫秒
     if (this.remainingCooldown > 0) {
-      this.remainingCooldown -= deltaTime * 1000;
+      this.remainingCooldown -= deltaTime;
     }
   }
 }

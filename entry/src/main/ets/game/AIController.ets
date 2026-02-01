@@ -58,11 +58,11 @@ export class AIController {
 
   // 更新AI（每帧调用）
   update(deltaTime: number): void {
-    // 更新状态计时器
-    this.stateTimer -= deltaTime * 1000;
-    this.decisionCooldown -= deltaTime * 1000;
-    this.reactionDelay -= deltaTime * 1000;
-    this.lastActionTime += deltaTime * 1000;
+    // deltaTime 单位为毫秒
+    this.stateTimer -= deltaTime;
+    this.decisionCooldown -= deltaTime;
+    this.reactionDelay -= deltaTime;
+    this.lastActionTime += deltaTime;
 
     // 反应延迟未结束，不执行任何操作
     if (this.reactionDelay > 0) {

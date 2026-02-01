@@ -39,11 +39,28 @@ export class InputController {
     if (key === 'j' || key === 'z') {
       this.character.attack();
     }
+    // 格挡控制
+    if (key === 'k' || key === 'x') {
+      this.character.startBlock();
+    }
   }
 
   // 处理持续输入
   private handleContinuousInput(): void {
-    // 移动控制
+    // 格挡状态检测
+    const isBlocking = this.keys.get('k') || this.keys.get('x');
+    if (isBlocking) {
+      this.character.setBlocking(true);
+    } else {
+      this.character.setBlocking(false);
+    }
+
+    // 移动控制（格挡时不能移动）
+    if (isBlocking) {
+      this.character.stopMoving();
+      return;
+    }
+
     const movingLeft = this.keys.get('arrowleft') || this.keys.get('a');
     const movingRight = this.keys.get('arrowright') || this.keys.get('d');
 

@@ -101,8 +101,9 @@ export class ModeManager {
 
   // 更新冷却
   update(deltaTime: number): void {
+    // deltaTime 单位为毫秒
     if (this.switchCooldown > 0) {
-      this.switchCooldown -= deltaTime * 1000;
+      this.switchCooldown -= deltaTime;
     }
   }
 

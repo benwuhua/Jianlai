@@ -68,8 +68,13 @@ struct Index {
                 const aiDifficulty = difficultyMap[this.difficulty] || 'normal';
 
                 this.gameEngine = new GameEngine(this.canvasContext, aiDifficulty, this.characterId);
-                // 设置回调更新UI
-                this.gameEngine.setUIUpdateCallback(this.updateUIFromGame.bind(this));
+                // 设置回调更新UI (使用箭头函数替代 bind)
+                this.gameEngine.setUIUpdateCallback(
+                  (playerHp: number, playerMaxHp: number, enemyHp: number, enemyMaxHp: number,
+                   battleOver: boolean = false, winnerName: string = '', isVictory: boolean = false) => {
+                    this.updateUIFromGame(playerHp, playerMaxHp, enemyHp, enemyMaxHp, battleOver, winnerName, isVictory);
+                  }
+                );
                 this.gameEngine.start();
               } else {
                 hilog.error(DOMAIN, TAG, 'Canvas context is null');
@@ -319,13 +324,12 @@ struct Index {
         this.ultimateCooldown = skillManager.getUltimateCooldownRemaining();
 
         // 更新技能可用状态
-        this.canUseSkills = [
-          skillManager.canUseSkill(0),
-          skillManager.canUseSkill(1),
-          skillManager.canUseSkill(2)
-        ];
+        const c0 = skillManager.canUseSkill(0);
+        const c1 = skillManager.canUseSkill(1);
+        const c2 = skillManager.canUseSkill(2);
+        this.canUseSkills = [c0 || false, c1 || false, c2 || false];
 
-        this.canUseUltimate = skillManager.canUseUltimate();
+        this.canUseUltimate = (skillManager.canUseUltimate() || false);
       }
     }
   }

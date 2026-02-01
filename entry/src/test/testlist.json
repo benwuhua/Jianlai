@@ -1,0 +1,39 @@
+{
+  "testcases": [
+    {
+      "name": "CharacterTest",
+      "testType": "suite",
+      "suites": ["Character.test.ets"]
+    },
+    {
+      "name": "SkillTest",
+      "testType": "suite",
+      "suites": ["Skill.test.ets"]
+    },
+    {
+      "name": "SkillManagerTest",
+      "testType": "suite",
+      "suites": ["SkillManager.test.ets"]
+    },
+    {
+      "name": "CharacterManagerTest",
+      "testType": "suite",
+      "suites": ["CharacterManager.test.ets"]
+    },
+    {
+      "name": "BattleSystemTest",
+      "testType": "suite",
+      "suites": ["BattleSystem.test.ets"]
+    },
+    {
+      "name": "ModeManagerTest",
+      "testType": "suite",
+      "suites": ["ModeManager.test.ets"]
+    },
+    {
+      "name": "CollisionDetectorTest",
+      "testType": "suite",
+      "suites": ["CollisionDetector.test.ets"]
+    }
+  ]
+}

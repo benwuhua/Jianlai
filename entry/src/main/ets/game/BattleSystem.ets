@@ -7,21 +7,21 @@ const DOMAIN = 0x0000;
 const TAG = 'BattleSystem';
 
 export class BattleSystem {
-  // 剑气生成配置
-  private static readonly KI_FROM_ATTACK = 8; // 攻击获得剑气
-  private static readonly KI_FROM_HIT = 5; // 受击获得剑气
+  // 剑气生成配置 - 提高剑气获得量，让游戏更好玩
+  private static readonly KI_FROM_ATTACK = 15; // 攻击获得剑气（原8）
+  private static readonly KI_FROM_HIT = 10; // 受击获得剑气（原5）
   private static readonly KI_FROM_SKILL = 0; // 技能释放不获得剑气
 
-  // 处理攻击判定
-  static handleAttack(attacker: Character, target: Character): void {
+  // 处理攻击判定 - 返回是否击中
+  static handleAttack(attacker: Character, target: Character): boolean {
     // 检查攻击者是否正在攻击
     if (!attacker.isAttacking()) {
-      return;
+      return false;
     }
 
     // 检查是否在攻击范围内
     if (!CollisionDetector.checkAttackRange(attacker, target, 120)) {
-      return;
+      return false;
     }
 
     // 检查朝向是否正确
@@ -30,7 +30,7 @@ export class BattleSystem {
                           (attacker.facing === -1 && dx < 0);
 
     if (!isFacingTarget) {
-      return;
+      return false;
     }
 
     // 造成伤害（避免重复判定：只在攻击开始时造成伤害）
@@ -45,7 +45,11 @@ export class BattleSystem {
       AudioManager.getInstance().playHitSound();
       hilog.info(DOMAIN, TAG, '%{public}s hit %{public}s for %{public}d damage (attacker Ki: %{public}d, target Ki: %{public}d)',
         attacker.name, target.name, actualDamage, attacker.getCurrentKi(), target.getCurrentKi());
+      
+      return true;
     }
+    
+    return false;
   }
 
   // 处理技能伤害
