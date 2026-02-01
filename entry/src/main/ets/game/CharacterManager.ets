@@ -1055,4 +1055,11 @@ export class CharacterManager {
 
     return character;
   }
+
+  // 预加载所有角色贴图
+  async preloadAllTextures(): Promise<void> {
+    const characterIds = this.getAllCharacters().map(c => c.id);
+    await CharacterRenderer.preloadTextures(characterIds);
+    hilog.info(DOMAIN, TAG, 'Preloaded textures for %{public}d characters', characterIds.length);
+  }
 }

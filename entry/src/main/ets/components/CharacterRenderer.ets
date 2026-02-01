@@ -1,9 +1,30 @@
 import { Character, CharacterState } from '../models/Character';
+import { resourceManager } from '@kit.ArkUI';
 
 // 使用 ArkTS 标准 CanvasRenderingContext2D 类型
 type Canvas2DContext = CanvasRenderingContext2D;
 
+// 贴图缓存
+const textureCache: Map<string, ImageBitmap> = new Map();
+
 export class CharacterRenderer {
+  // 预加载角色贴图
+  static async preloadTextures(characterIds: string[]): Promise<void> {
+    const context = getContext();
+    const resourceManager = context.resourceManager;
+    
+    for (const id of characterIds) {
+      try {
+        const rawFile = await resourceManager.getRawFileContent(`characters/${id}.png`);
+        const buffer = rawFile.buffer;
+        const imageBitmap = await createImageBitmap(new Blob([buffer]));
+        textureCache.set(id, imageBitmap);
+      } catch (err) {
+        console.error(`Failed to load texture for ${id}: ${err}`);
+      }
+    }
+  }
+
   // 渲染角色
   static render(ctx: Canvas2DContext, character: Character): void {
     ctx.save();
@@ -14,6 +35,46 @@ export class CharacterRenderer {
     // 绘制攻击特效
     CharacterRenderer.renderAttackEffect(ctx, character);
 
+    // 尝试加载并绘制贴图
+    const texture = textureCache.get(character.id);
+    if (texture) {
+      // 绘制贴图
+      const scale = character.height / texture.height;
+      const drawWidth = texture.width * scale;
+      const drawHeight = character.height;
+      
+      ctx.drawImage(
+        texture,
+        character.x - drawWidth / 2,
+        character.y - drawHeight,
+        drawWidth,
+        drawHeight
+      );
+    } else {
+      // 回退到颜色块绘制
+      CharacterRenderer.renderFallbackCharacter(ctx, character);
+    }
+
+    // 绘制角色名称
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(character.name, character.x, character.y - character.height - 10);
+
+    // 绘制模式标签（如果有）
+    CharacterRenderer.renderModeLabel(ctx, character);
+
+    // 绘制血条
+    CharacterRenderer.renderHealthBar(ctx, character);
+
+    // 绘制剑气槽
+    CharacterRenderer.renderKiBar(ctx, character);
+
+    ctx.restore();
+  }
+
+  // 回退绘制（纯色块）
+  private static renderFallbackCharacter(ctx: Canvas2DContext, character: Character): void {
     // 绘制角色身体（简单的矩形）
     let bodyColor = character.color;
 
@@ -36,23 +97,6 @@ export class CharacterRenderer {
     ctx.beginPath();
     ctx.arc(eyeX, character.y - character.height + 30, 8, 0, 2 * Math.PI);
     ctx.fill();
-
-    // 绘制角色名称
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '16px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(character.name, character.x, character.y - character.height - 10);
-
-    // 绘制模式标签（如果有）
-    CharacterRenderer.renderModeLabel(ctx, character);
-
-    // 绘制血条
-    CharacterRenderer.renderHealthBar(ctx, character);
-
-    // 绘制剑气槽
-    CharacterRenderer.renderKiBar(ctx, character);
-
-    ctx.restore();
   }
 
   // 绘制技能特效
