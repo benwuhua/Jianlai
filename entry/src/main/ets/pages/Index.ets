@@ -120,17 +120,17 @@ struct Index {
       .backgroundColor('#000000')
 
       // KO/战斗结束界面
-      KOScreen({
-        isVisible: this.battleOver,
-        winner: this.winner,
-        isVictory: this.isVictory,
-        onRestart: () => {
-          this.restartGame();
-        },
-        onQuit: () => {
-          router.replaceUrl({ url: 'pages/MainMenu' });
-        }
-      })
+      // KOScreen({
+      //   isVisible: this.battleOver,
+      //   winner: this.winner,
+      //   isVictory: this.isVictory,
+      //   onRestart: () => {
+      //     this.restartGame();
+      //   },
+      //   onQuit: () => {
+      //     router.replaceUrl({ url: 'pages/MainMenu' });
+      //   }
+      // })
 
       // UI层
       Column() {
@@ -239,21 +239,13 @@ struct Index {
       }
       .width('100%')
       .height('100%')
-    }
 
-    // 暂停菜单
-    PauseMenu({
-      isVisible: this.isPaused,
-      onResume: () => {
-        this.togglePause();
-      },
-      onRestart: () => {
-        this.restartGame();
-      },
-      onQuit: () => {
-        router.replaceUrl({ url: 'pages/MainMenu' });
-      }
-    })
+      // KO/战斗结束界面（暂时注释 - hvigor bug）
+      // KOScreen({...})
+
+      // 暂停菜单（暂时注释 - hvigor bug）
+      // PauseMenu({...})
+    }
   }
 
   // 切换暂停状态

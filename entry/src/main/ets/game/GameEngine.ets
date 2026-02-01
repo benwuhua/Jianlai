@@ -421,7 +421,6 @@ export class GameEngine {
   getEnemyCombo(): number {
     return this.enemyCombo;
   }
-}
 
   // 切换暂停状态
   togglePause(): boolean {
@@ -431,6 +430,7 @@ export class GameEngine {
   }
 
   // 获取暂停状态
-  isPaused(): boolean {
+  getIsPaused(): boolean {
     return this.isPaused;
   }
+}
