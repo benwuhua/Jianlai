@@ -1,0 +1,16 @@
+{
+  "name": "ux-tester",
+  "version": "1.0.0",
+  "description": "剑来游戏 UX 测试 agent",
+  "command": "python3 scripts/ux_tester.py",
+  "capabilities": [
+    "编译项目",
+    "检查错误",
+    "修复代码",
+    "提交推送"
+  ],
+  "env": {
+    "DEVECO_SDK_HOME": "/Applications/DevEco-Studio.app/Contents/sdk",
+    "PROJECT_DIR": "/Users/ryan/Code/happ/Jianlai"
+  }
+}

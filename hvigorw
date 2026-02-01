@@ -1,0 +1,4 @@
+#!/bin/bash
+# hvigorw 包装脚本
+DIR="$(cd "$(dirname "$0")" && pwd)"
+exec "/Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor/bin/hvigor.js" "$@"
