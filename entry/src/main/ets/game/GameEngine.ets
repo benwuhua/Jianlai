@@ -305,13 +305,9 @@ export class GameEngine {
     // 清空画布
     this.canvas.clearRect(0, 0, width, height);
 
-    // 应用屏幕震动
-    this.canvas.save();
-    if (this.screenShake > 0) {
-      const shakeX = (Math.random() - 0.5) * this.screenShake * 2;
-      const shakeY = (Math.random() - 0.5) * this.screenShake * 2;
-      this.canvas.translate(shakeX, shakeY);
-    }
+    // 测试：绘制红色方块确认 Canvas 工作
+    this.canvas.fillStyle = '#FF0000';
+    this.canvas.fillRect(150, 250, 60, 60); // 屏幕中心测试方块
 
     // 绘制背景（天空）
     this.canvas.fillStyle = '#87CEEB'; // 天蓝色
@@ -325,12 +321,18 @@ export class GameEngine {
     this.canvas.fillStyle = '#1a6b1a';
     this.canvas.fillRect(0, 500, width, 5);
 
-    // 渲染角色
-    CharacterRenderer.render(this.canvas, this.player);
-    CharacterRenderer.render(this.canvas, this.enemy);
+    // 绘制角色（测试用大尺寸）
+    // 玩家 - 蓝色
+    this.canvas.fillStyle = '#4A90E2';
+    this.canvas.fillRect(50, 350, 80, 150);
+    this.canvas.fillStyle = '#FFFFFF';
+    this.canvas.fillText('玩家', 90, 340);
 
-    // 渲染连击数
-    this.renderCombo(this.canvas);
+    // 敌人 - 红色
+    this.canvas.fillStyle = '#E74C3C';
+    this.canvas.fillRect(230, 350, 80, 150);
+    this.canvas.fillStyle = '#FFFFFF';
+    this.canvas.fillText('敌人', 270, 340);
 
     // 恢复画布（取消震动偏移）
     this.canvas.restore();
