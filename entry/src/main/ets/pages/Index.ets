@@ -117,7 +117,7 @@ struct Index {
       }
       .width('100%')
       .height('100%')
-      .backgroundColor('#000000')
+      .backgroundColor('#87CEEB')
 
       // KO/战斗结束界面
       // KOScreen({
