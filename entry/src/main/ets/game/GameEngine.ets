@@ -313,13 +313,17 @@ export class GameEngine {
       this.canvas.translate(shakeX, shakeY);
     }
 
-    // 绘制背景（简单的地面）
-    this.canvas.fillStyle = '#2C3E50';
+    // 绘制背景（天空）
+    this.canvas.fillStyle = '#87CEEB'; // 天蓝色
     this.canvas.fillRect(0, 0, width, height);
 
     // 绘制地面
-    this.canvas.fillStyle = '#34495E';
+    this.canvas.fillStyle = '#228B22'; // 绿色草地
     this.canvas.fillRect(0, 500, width, height - 500);
+
+    // 绘制地面线
+    this.canvas.fillStyle = '#1a6b1a';
+    this.canvas.fillRect(0, 500, width, 5);
 
     // 渲染角色
     CharacterRenderer.render(this.canvas, this.player);
