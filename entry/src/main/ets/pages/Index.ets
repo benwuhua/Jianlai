@@ -21,6 +21,8 @@ type GameCanvas = CanvasRenderingContext2D;
 struct Index {
   @State private canvasContext: GameCanvas | null = null;
   private gameEngine: GameEngine | null = null;
+  private screenWidth: number = 360;
+  private screenHeight: number = 640;
 
   // 导航参数
   @State private characterId: string = '';
@@ -72,7 +74,11 @@ struct Index {
                 };
                 const aiDifficulty = difficultyMap[this.difficulty] || 'normal';
 
-                this.gameEngine = new GameEngine(this.canvasContext, aiDifficulty, this.characterId);
+                // 设置屏幕尺寸（默认 360x640）
+                this.screenWidth = 360;
+                this.screenHeight = 640;
+
+                this.gameEngine = new GameEngine(this.canvasContext, aiDifficulty, this.characterId, this.screenWidth, this.screenHeight);
                 // 设置回调更新UI (使用箭头函数替代 bind)
                 this.gameEngine.setUIUpdateCallback(
                   (playerHp: number, playerMaxHp: number, enemyHp: number, enemyMaxHp: number,

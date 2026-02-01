@@ -88,12 +88,12 @@ export class GameEngine {
     const character = manager.createCharacter(characterId);
 
     if (character) {
-      character.x = 200;
+      character.x = 100; // 玩家在左侧
       return character;
     }
 
     // 默认角色
-    const defaultChar = new Character('player', '陈平安', 200, 500, '#4A90E2');
+    const defaultChar = new Character('player', '陈平安', 100, 500, '#4A90E2');
     return defaultChar;
   }
 
@@ -103,13 +103,13 @@ export class GameEngine {
     const character = manager.createCharacter(characterId);
 
     if (character) {
-      character.x = 600;
+      character.x = 260; // 敌人在右侧
       character.facing = -1; // 面向左
       return character;
     }
 
     // 默认敌人
-    const defaultChar = new Character('enemy', '敌人', 600, 500, '#E74C3C');
+    const defaultChar = new Character('enemy', '敌人', 260, 500, '#E74C3C');
     defaultChar.facing = -1;
     return defaultChar;
   }
